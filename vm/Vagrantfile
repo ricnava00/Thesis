@@ -46,7 +46,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "free5gc" do |h|
     h.vm.box = "bento/ubuntu-22.04"
     h.vm.hostname = 'free5gc'
-    h.vm.network "forwarded_port", guest: 5000, host: 5000
+    h.vm.network "forwarded_port", guest: 5000, host: 5000, guest_ip: "127.0.0.1"
 
     h.vm.network "private_network", virtualbox__intnet: "intnet-1", auto_config: false
 
@@ -69,7 +69,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "openfaas" do |h|
     h.vm.box = "bento/ubuntu-22.04"
     h.vm.hostname = 'openfaas'
-    h.vm.network "forwarded_port", guest: 8080, host: 5001
+    h.vm.network "forwarded_port", guest: 8080, host: 5001, guest_ip: "192.168.58.1"
 
     h.vm.network "private_network", virtualbox__intnet: "intnet-2", auto_config: false
 
@@ -84,7 +84,7 @@ Vagrant.configure("2") do |config|
     h.vm.provision "shell", path: "provision-openfaas-root.sh", name: "Setup - root"
     h.vm.provision "shell", path: "provision-openfaas-user.sh", privileged: false, name: "Setup - user"
     h.vm.provision "shell", path: "ip-openfaas.sh", run: "always", name: "Set IPs"
-    h.vm.provision "shell", path: "startup-openfaas.sh", run: "always", name: "Start openfaas"
+    #h.vm.provision "shell", path: "startup-openfaas.sh", run: "always", name: "Start openfaas" #Port forwarding dies for some reason, run it manually after startup
 
     h.vm.synced_folder "..", "/home/vagrant/shared"
   end

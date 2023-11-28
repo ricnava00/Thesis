@@ -1,3 +1,4 @@
+#Unused - for some reason the port forward stops working (obviously, it stops immediately when the ssh session closes, but even using disown to keep it running, after some time it will stop. For now, start it manually)
 sudo kubectl rollout status -n openfaas deploy/gateway
 if [[ -z $(ps -ax | grep port-forward | grep 8080) ]]
 then

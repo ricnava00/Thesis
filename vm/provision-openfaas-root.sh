@@ -16,7 +16,7 @@ mkdir /home/vagrant/tlmsp
 tar -C /home/vagrant/tlmsp -xf /home/vagrant/shared/tlmsp-compiled-22.04.tar
 echo ". /home/vagrant/tlmsp/install/share/tlmsp-tools/tlmsp-env.sh" >> /home/vagrant/.bashrc
 #For ease of mofication outside of VM
-ln -s /home/vagrant/shared/vm/httpd_tlmsp.conf /home/vagrant/tlmsp/install/etc/apache24/
+ln -sf /home/vagrant/shared/vm/httpd_tlmsp.conf /home/vagrant/tlmsp/install/etc/apache24/
 
 log "Upgrade packages"
 apt-get update -qq \
