@@ -65,11 +65,11 @@ curl -k --tlmsp /shared/TLMSP/tlmsp-tools/examples/apache.1mbox.ucl 'https://192
 ```
 The output should be
 ```
-_           _____
+ _           _____
 | |_ ___  __|_   _|
 | __/ __|/ _ \| |
 | |_\__ \  __/| |
-\__|___/\___||_|
+ \__|___/\___||_|
 ```
 since the middlebox reverses the input string sent to the server
 
