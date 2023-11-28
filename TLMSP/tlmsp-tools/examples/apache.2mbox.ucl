@@ -1,0 +1,109 @@
+
+context {
+    id = 1
+    tag = header
+}
+context {
+    id = 2
+    tag = body
+}
+
+activity {
+    tag = get
+
+    match {
+	at = 0
+    }
+
+    action {
+        send {
+            context = header
+            data = <<EOD
+GET /index.html HTTP/1.1%0d
+Host: localhost:4445%0d
+Connection: close%0d
+%0d
+
+EOD
+        }
+    }
+}
+
+activity {
+    tag = fastforward-h
+
+    match {
+        regex = ".+"
+        which = header
+    }
+    action {
+        send {
+            context = header
+            template = ${0}
+        }
+    }
+}
+
+activity {
+    tag = fastforward-b
+
+    match {
+        regex = ".+"
+        which = body
+    }
+    action {
+        send {
+            context = body
+            template = ${0}
+        }
+    }
+}
+
+# Behavior definition that the client will use to report the response
+activity {
+    tag = report-response
+
+    match {
+        which = *   # Which contexts to look for a match in.
+                    # Endpoints have access to all contexts, so no
+                    # need to be specific.
+        data = "It works!"
+    }
+
+    action {
+        # An empty action block is used to only report the match
+    }
+}
+
+middlebox {
+        tag = mbox1
+        address = tlmsp://localhost:10001
+
+        context {
+            which = [ header, body ]
+            access = rw
+        }
+        function-to-client = [ fastforward-h, fastforward-b ]
+        function-to-server = [ fastforward-h, fastforward-b ]
+}
+
+middlebox {
+        tag = mbox2
+        address = tlmsp://localhost:10002
+
+        context {
+            which = [ header, body ]
+            access = rw
+        }
+        function-to-client = [ fastforward-h, fastforward-b ]
+        function-to-server = [ fastforward-h, fastforward-b ]
+}
+
+client {
+    address = tlmsp://localhost
+    function = [ get, report-response ]
+}
+
+server {
+    address = tlmsp://localhost:4445
+}
