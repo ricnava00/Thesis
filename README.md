@@ -46,8 +46,14 @@ The terminal should then stop asking for input
 #### Terminal 1
 ```
 cd free5gc-compose
+docker compose up
+```
+Check that all containers start successfully, then hit Ctrl+C and run
+```
 docker compose up -d
 ```
+On subsequent runs, the second command can be used directly
+
 On the host machine, navigate to http://127.0.0.1:5000, login with user `admin` and password `free5gc`  
 Navigate to the **Subscribers** tab, click on **New Subscriber**  
 The information should be correct, check that SUPI ends with `...001` and add however many clients you need (**Subscriber data number** field). For testing, 1 client will suffice
