@@ -74,5 +74,6 @@ The output should be
 since the middlebox reverses the input string sent to the server
 
 ## Notes
+- On the free5gc machine, for certain virtualization configurations, AVX might not be available to docker and the mongodb container will not start. In this case, edit `free5gc-compose/docker-compose.yaml` and set the db image to `mongo:4.4.18`
 - The openfaas webui is available on the host on http://127.0.0.1:5001. The username is `admin`; to get the password, run on the server   
 `sudo kubectl get secret -n openfaas basic-auth -o jsonpath="{.data.basic-auth-password}" | base64 --decode`

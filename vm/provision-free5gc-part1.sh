@@ -1,6 +1,4 @@
 #!/bin/bash
-echo mario
-exit 0
 function log {
 	echo -e "[INFO] $1"
 }
