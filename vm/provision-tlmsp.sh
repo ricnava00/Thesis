@@ -112,43 +112,10 @@ for s in openssl curl apache_httpd apache_apr apache_apr_util; do
 done
 #---
 
-#Apply patches
-
-#Fixes bug: the part of the container after a match would be deleted instead of forwarded
-patch -N -d${src_root} -p0 << EOF
---- tlmsp-tools/libdemo/activity.c	2023-12-02 15:07:55.286156961 +0000
-+++ tlmsp-tools/libdemo/activity.c	2023-12-02 15:07:55.286156961 +0000
-@@ -1515,6 +1515,8 @@
- 		    TLMSP_container_context(new_container),
- 		    TLMSP_container_length(new_container));
- 		container_queue_add_head(read_q, new_container);
-+		if(match_range->last==match_range->first)
-+			match_range->last = container_queue_head_entry(read_q);
- 		match_range->first = container_queue_head_entry(read_q);
- 		match_range->first_offset = 0;
- 	}
-EOF
-
-#Retry on "connection to client knows middlebox id, but to server does not", the check happens too early and a later received packet resolves it
-patch -N -d${src_root} -p0 << EOF
---- tlmsp-openssl/ssl/tlmsp_mbx.c	2023-11-22 14:31:06.336866416 +0000
-+++ tlmsp-openssl/ssl/tlmsp_mbx.c	2023-11-22 14:31:06.336866416 +0000
-@@ -72,6 +72,7 @@
-          */
-         if (toserver->tlmsp.self == NULL && toclient->tlmsp.self != NULL) {
-             fprintf(stderr, "%s: connection to client knows middlebox id, but to server does not.\n", __func__);
-+            continue;
-         }
-
-         rv[1] = tlmsp_middlebox_handshake_half(toserver, toclient, 1, &error[1]);
-EOF
-
 if ! gcc --version | awk '/gcc/ && ($3+0)>=11{err=1}END{exit err}'
 then
 	echo "\e[31mApplying gcc 11 fixes before building\e[0m"
 	sleep 3
-	sed -i 's/my $gcc_devteam_warn = /my $gcc_devteam_warn = "-Wno-array-parameter "\n\t. /' ../../tlmsp-openssl/Configure
-	sed -i 's/AM_CFLAGS = -Wall -Wextra/AM_CFLAGS = -Wall -Wextra -Wno-unused-but-set-variable/' ../Makefile.am
 	cd ../../tlmsp-apache-httpd
 	git clean -f
 	git reset --hard
