@@ -8,10 +8,8 @@ apt-get update
 apt-get upgrade -y
 apt-get install -y bash-completion command-not-found
 apt-get install -y autoconf clang gettext libexpat1-dev libpcre3-dev libpcre2-dev libtool-bin libev-dev make parallel pkg-config python-is-python3
-mkdir tlmsp
-cd tlmsp
-git clone https://forge.etsi.org/rep/cyber/103523_MSP/tlmsp/tlmsp-tools.git
-cd tlmsp-tools
+cp -r /home/vagrant/shared/TLMSP tlmsp
+cd tlmsp/tlmsp-tools
 cd build
 
 #Copied from build.sh, download repos for modification before building
