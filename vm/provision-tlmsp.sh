@@ -1,8 +1,8 @@
 #!/bin/bash
 if [[ ! -f /home/vagrant/shared/tlmsp-compiled-20.04.tar ]]
 then
-	echo "Compiled 20.04 TLMSP binaries missing in shared folder! Did you start the 20.04 vm?"
-	exit 1
+  echo "Compiled 20.04 TLMSP binaries missing in shared folder! Did you start the 20.04 vm?"
+  exit 1
 fi
 apt-get update
 apt-get upgrade -y
@@ -16,54 +16,54 @@ cd build
 #---
 # echo given message to stdout such that it stands out
 announce() {
-    echo ">>>" $@
+  echo ">>>" $@
 }
 
 # like announce, but for critical messages
 alert() {
-    echo "!!!" $@
+  echo "!!!" $@
 }
 
 require_success() {
-    eval $@
-    if [ $? -ne 0 ]; then
-	alert "command failed:" $@
-	exit 1
-    fi
+  eval $@
+  if [ $? -ne 0 ]; then
+    alert "command failed:" $@
+    exit 1
+  fi
 }
 
 require_file() {
-    local filename="$1"
-    local fail_msg="$2"
+  local filename="$1"
+  local fail_msg="$2"
 
-    if [ ! -f ${filename} ]; then
-	alert ${fail_msg}
-	exit 1
-    fi
+  if [ ! -f ${filename} ]; then
+    alert ${fail_msg}
+    exit 1
+  fi
 }
 
 require_repo() {
-    local destdir="$1"
-    local repo="$2"
-    local branch_or_tag="$3"
-    local origdir
+  local destdir="$1"
+  local repo="$2"
+  local branch_or_tag="$3"
+  local origdir
 
-    origdir=$(pwd)
-    if [ ! -d ${destdir} ]; then
-	announce "Cloning ${repo} to ${destdir}"
-	require_success git clone ${repo} ${destdir}
-	require_success cd ${destdir}
-	announce "Checking out ${branch_or_tag}"
-	require_success git checkout ${branch_or_tag}
-    else
-	announce "Repo ${repo} appears to already be cloned to ${destdir}"
-    fi
-    cd ${origdir}
+  origdir=$(pwd)
+  if [ ! -d ${destdir} ]; then
+    announce "Cloning ${repo} to ${destdir}"
+    require_success git clone ${repo} ${destdir}
+    require_success cd ${destdir}
+    announce "Checking out ${branch_or_tag}"
+    require_success git checkout ${branch_or_tag}
+  else
+    announce "Repo ${repo} appears to already be cloned to ${destdir}"
+  fi
+  cd ${origdir}
 }
 
 build_script_dir=$(pwd)
 require_file "${build_script_dir}/$(basename $0)" \
-	     "This script is intended to be run from the directory that contains it"
+             "This script is intended to be run from the directory that contains it"
 
 tlmsp_tools_dir=$(realpath ${build_script_dir}/..)
 src_root=$(realpath ${tlmsp_tools_dir}/..)
@@ -94,41 +94,41 @@ pki_private=${install_dir}/etc/pki/private
 # If available, load overrides for default source tree and tag/branch
 # names
 if [ -f ./local-build-config.sh ]; then
-    . ./local-build-config.sh
+  . ./local-build-config.sh
 fi
 apache_apr_dir=${apache_httpd_dir}/srclib/apr
 apache_apr_util_dir=${apache_httpd_dir}/srclib/apr-util
 
 # Fetch all sources
 for s in openssl curl apache_httpd apache_apr apache_apr_util; do
-    eval destdir=\$${s}_dir
-    eval repo=\$${s}_repo
-    eval branch_or_tag=\$${s}_branch_or_tag
+  eval destdir=\$${s}_dir
+  eval repo=\$${s}_repo
+  eval branch_or_tag=\$${s}_branch_or_tag
 
-    announce "Fetching ${repo} (${branch_or_tag}) to ${destdir}"
-    require_repo ${destdir} ${repo} ${branch_or_tag}
+  announce "Fetching ${repo} (${branch_or_tag}) to ${destdir}"
+  require_repo ${destdir} ${repo} ${branch_or_tag}
 done
 #---
 
 if ! gcc --version | awk '/gcc/ && ($3+0)>=11{err=1}END{exit err}'
 then
-	echo "\e[31mApplying gcc 11 fixes before building\e[0m"
-	sleep 3
-	cd ../../tlmsp-apache-httpd
-	git clean -f
-	git reset --hard
-	git remote add fixUbuntu22 https://github.com/apache/apr.git
-	git fetch fixUbuntu22
-	git cherry-pick -n 0a763c5e500f4304b7c534fae0fad430d64982e8
-	git remote remove fixUbuntu22
-	cd srclib/apr
-	git clean -f
-	git reset --hard
-	git remote add fixUbuntu22 https://github.com/apache/apr.git
-	git fetch fixUbuntu22
-	git cherry-pick -n 0a763c5e500f4304b7c534fae0fad430d64982e8
-	git remote remove fixUbuntu22
-	cd ../../../tlmsp-tools/build
+  echo "\e[31mApplying gcc 11 fixes before building\e[0m"
+  sleep 3
+  cd ../../tlmsp-apache-httpd
+  git clean -f
+  git reset --hard
+  git remote add fixUbuntu22 https://github.com/apache/apr.git
+  git fetch fixUbuntu22
+  git cherry-pick -n 0a763c5e500f4304b7c534fae0fad430d64982e8
+  git remote remove fixUbuntu22
+  cd srclib/apr
+  git clean -f
+  git reset --hard
+  git remote add fixUbuntu22 https://github.com/apache/apr.git
+  git fetch fixUbuntu22
+  git cherry-pick -n 0a763c5e500f4304b7c534fae0fad430d64982e8
+  git remote remove fixUbuntu22
+  cd ../../../tlmsp-tools/build
 fi
 ./build.sh
 ret=$?
