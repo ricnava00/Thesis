@@ -38,7 +38,7 @@ If after running httpd you can run more commands, then it failed to start. Check
 
 ### Middlebox
 ```
-tlmsp-mb -c ~/shared/TLMSP/tlmsp-tools/examples/apache.1mbox.ucl -t mbox1 -P
+tlmsp-mb -c ~/shared/TLMSP/final.ucl -t mbox1 -P
 ```
 The terminal should then stop asking for input
 
@@ -67,7 +67,7 @@ There should be no errors. If you get `ILLEGAL_UE`, make sure that the previousl
 #### Terminal 2
 ```
 docker exec -it ueransim bash
-curl -k --tlmsp /shared/TLMSP/tlmsp-tools/examples/apache.1mbox.ucl 'https://192.168.58.1:4444/function/figlet.openfaas-fn' --data "Test"
+curl -k --tlmsp /shared/TLMSP/final.ucl 'https://192.168.58.1:4444/function/figlet.openfaas-fn' --data "Test"
 ```
 The output should be
 ```

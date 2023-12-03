@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
     end
 
     h.vm.provision "shell", path: "provision-tlmsp.sh"
-    h.vm.provision "shell", path: "ip-etsi.sh", run: "always"
+    h.vm.provision "shell", path: "ip-etsi.sh", run: "always", name: "Set IPs"
 
     h.vm.synced_folder "..", "/home/vagrant/shared"
   end
@@ -61,7 +61,7 @@ Vagrant.configure("2") do |config|
     h.vm.provision "shell", path: "provision-free5gc-part1.sh"
     h.vm.provision "shell", reboot: true
     h.vm.provision "shell", path: "provision-free5gc-part2.sh"
-    h.vm.provision "shell", path: "ip-free5gc.sh", run: "always"
+    h.vm.provision "shell", path: "ip-free5gc.sh", run: "always", name: "Set IPs"
 
     h.vm.synced_folder "..", "/home/vagrant/shared"
   end
