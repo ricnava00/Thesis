@@ -25,11 +25,11 @@ activity {
     match {
 	    regex = ".*"
         which = *
+        forward = true
     }
     action {
-        send {
-            context = header
-            handler =
+        log {
+            handler = cat - > log.txt
         }
     }
 }
@@ -40,7 +40,7 @@ middlebox {
 
     context {
         which = [ header, body ]
-        access = rw
+        access = r
     }
     function-to-server = process
 }
