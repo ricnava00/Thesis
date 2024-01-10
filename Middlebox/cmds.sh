@@ -1,0 +1,13 @@
+export OPENFAAS_URL=https://192.168.58.1:4444
+rm waiting.dat session.dat stdout.txt stderr.txt; curl -kv --tlmsp ~/shared/TLMSP/final.ucl -XPOST $OPENFAAS_URL/function/product-catalog-api/products -H 'Content-Type: application/json' --data @inputs/products-request-input.json; cat stdout.txt; cat stderr.txt
+
+rm waiting.dat session.dat stdout.txt stderr.txt; curl -kv --tlmsp ~/shared/TLMSP/final.ucl -XPOST $OPENFAAS_URL/function/product-catalog-builder/product -H 'Content-Type: application/json' --data @inputs/product-create-input.json; cat stdout.txt; cat stderr.txt
+
+rm stdout.txt stderr.txt; curl -kv --tlmsp ~/shared/TLMSP/final.ucl -XPOST $OPENFAAS_URL/function/product-catalog-builder/product -H 'Content-Type: application/json' --data @inputs/product-create-input.json; cat stdout.txt; cat stderr.txt
+rm stdout.txt stderr.txt; curl -kv --tlmsp ~/shared/TLMSP/final.ucl -XPOST $OPENFAAS_URL/function/product-catalog-builder/image -H 'Content-Type: application/json' --data @inputs/product-image-input.json; cat stdout.txt; cat stderr.txt
+rm stdout.txt stderr.txt; curl -kv --tlmsp ~/shared/TLMSP/final.ucl -XPOST $OPENFAAS_URL/function/product-catalog-api/products -H 'Content-Type: application/json' --data @inputs/products-request-input.json; cat stdout.txt; cat stderr.txt
+rm stdout.txt stderr.txt; curl -kv --tlmsp ~/shared/TLMSP/final.ucl -XPOST $OPENFAAS_URL/function/product-catalog-api/categories -H 'Content-Type: application/json' --data @/dev/null; cat stdout.txt; cat stderr.txt
+rm stdout.txt stderr.txt; curl -kv --tlmsp ~/shared/TLMSP/final.ucl -XPOST $OPENFAAS_URL/function/product-purchase -H 'Content-Type: application/json' --data @inputs/product-purchase-input.json; cat stdout.txt; cat stderr.txt
+rm stdout.txt stderr.txt; curl -kv --tlmsp ~/shared/TLMSP/final.ucl -XPOST $OPENFAAS_URL/function/product-photos-register -H 'Content-Type: application/json' --data @inputs/user-update-phone-input.json; cat stdout.txt; cat stderr.txt
+rm stdout.txt stderr.txt; curl -kv --tlmsp ~/shared/TLMSP/final.ucl -XPOST $OPENFAAS_URL/function/product-photos/request -H 'Content-Type: application/json' --data @inputs/photo-request-input.json; cat stdout.txt; cat stderr.txt
+rm stdout.txt stderr.txt; curl -kv --tlmsp ~/shared/TLMSP/final.ucl -XPOST $OPENFAAS_URL/function/product-photos/photos -H 'Content-Type: application/json' --data @inputs/photo-assignment-input.json; cat stdout.txt; cat stderr.txt

@@ -4,3 +4,6 @@
 [submodule "TLMSP/tlmsp-openssl"]
 	path = TLMSP/tlmsp-openssl
 	url = https://github.com/ricnava00/tlmsp-openssl
+[submodule "hello-retail"]
+	path = hello-retail
+	url = https://github.com/ricnava00/hello-retail

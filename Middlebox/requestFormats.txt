@@ -1,0 +1,36 @@
+product-catalog-api:
+    /products
+        queryStringParameters
+            category
+    /categories
+product-catalog-builder:
+    /product
+        origin
+        data
+            id
+            brand
+            name
+            description
+            category
+            [price]
+    /image
+        origin
+        data
+            id
+            image
+product-purchase:
+    /
+        id
+        {login params} (missing in william)
+        [creditCard] (optional if previously saved (which never happens in william))
+        [storeCC] (missing in william)
+product-photos:
+    /request (this should probably be called automatically after building product)
+        origin
+        data
+            id
+            name
+    /photos
+        MediaUrl0
+        MediaContentType0
+        From

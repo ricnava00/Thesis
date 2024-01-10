@@ -1,1 +1,5 @@
 /vm/.vagrant/
+/Middlebox/session.dat
+/Middlebox/stderr.txt
+/Middlebox/stdout.txt
+/Middlebox/waiting.dat
