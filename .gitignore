@@ -3,3 +3,7 @@
 /Middlebox/stderr.txt
 /Middlebox/stdout.txt
 /Middlebox/waiting.dat
+/Middlebox/jwks.dat
+/Middlebox/jwks_info.dat
+/Middlebox/OAuthTokenGetter/secrets.js
+/Middlebox/OAuthTokenGetter/refresh_token.txt

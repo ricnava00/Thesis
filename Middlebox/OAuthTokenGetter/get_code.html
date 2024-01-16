@@ -1,0 +1,68 @@
+<html><head>
+<script src="secrets.js"></script>
+<script>
+  function oauth2SignIn() {
+      // Create element to open OAuth 2.0 endpoint in new window.
+      var form = document.createElement('form');
+      form.setAttribute('target', '_blank');
+      form.setAttribute('method', 'GET'); // Send as a GET request.
+      form.setAttribute('action', "https://accounts.google.com/o/oauth2/v2/auth");
+
+      // Parameters to pass to OAuth 2.0 endpoint.
+      var params = {
+          'client_id': YOUR_CLIENT_ID,
+          'redirect_uri': YOUR_REDIRECT_URI,
+          'scope': 'openid email profile',
+          'state': 'try_sample_request',
+          'prompt': 'consent',
+          'access_type': 'offline',
+          'response_type': 'code'
+      };
+
+      // Add form parameters as hidden input values.
+      for (var p in params) {
+          var input = document.createElement('input');
+          input.setAttribute('type', 'hidden');
+          input.setAttribute('name', p);
+          input.setAttribute('value', params[p]);
+          form.appendChild(input);
+      }
+
+      // Add form to page and submit it to open the OAuth 2.0 endpoint.
+      document.body.appendChild(form);
+      form.submit();
+  }
+  function oauth2GetToken() {
+      // Create element to open OAuth 2.0 endpoint in new window.
+      var form = document.createElement('form');
+      form.setAttribute('target', '_blank');
+      form.setAttribute('method', 'POST');
+      form.setAttribute('action', "https://oauth2.googleapis.com/token");
+
+      // Parameters to pass to OAuth 2.0 endpoint.
+      var params = {
+          'code': decodeURIComponent(document.getElementById("code").value),
+	  'client_id': YOUR_CLIENT_ID,
+          'client_secret': YOUR_CLIENT_SECRET,
+          'redirect_uri': YOUR_REDIRECT_URI,
+          'grant_type': 'authorization_code'
+      };
+
+      // Add form parameters as hidden input values.
+      for (var p in params) {
+          var input = document.createElement('input');
+          input.setAttribute('type', 'hidden');
+          input.setAttribute('name', p);
+          input.setAttribute('value', params[p]);
+          form.appendChild(input);
+      }
+
+      // Add form to page and submit it to open the OAuth 2.0 endpoint.
+      document.body.appendChild(form);
+      form.submit();
+  }
+</script>
+</head><body>
+<button onclick="oauth2SignIn();">Get access code</button><br>
+<button onclick="oauth2GetToken();">Get refresh token</button><input style="width:600px" type="text" placeholder="Access code" id="code"/>
+</body></html>
