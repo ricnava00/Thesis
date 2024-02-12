@@ -7,8 +7,8 @@
 /ETSI/Middlebox/waiting.dat
 /ETSI/Middlebox/jwks.dat
 /ETSI/Middlebox/jwks_info.dat
-/ETSI/Middlebox/OAuthTokenGetter/secrets.js
-/ETSI/Middlebox/OAuthTokenGetter/refresh_token.txt
+/OAuthTokenGetter/secrets.js
+/OAuthTokenGetter/refresh_token.txt
 /DC/go-compiled.tar
 /PerformanceMeasuring/*.res
 /PerformanceMeasuring/*.png
