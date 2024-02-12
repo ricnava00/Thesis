@@ -1,4 +1,5 @@
 /ETSI/vm/.vagrant/
+/DC/vm/.vagrant/
 /ETSI/Middlebox/graph.png
 /ETSI/Middlebox/session.dat
 /ETSI/Middlebox/stderr.txt
@@ -8,6 +9,6 @@
 /ETSI/Middlebox/jwks_info.dat
 /ETSI/Middlebox/OAuthTokenGetter/secrets.js
 /ETSI/Middlebox/OAuthTokenGetter/refresh_token.txt
+/DC/go-compiled.tar
 /PerformanceMeasuring/*.res
 /PerformanceMeasuring/*.png
-/DC/go-compiled.tar
