@@ -1,0 +1,11 @@
+[
+  {"path": "init", "post_data": ""},
+  {"path": "product-catalog-builder/product", "post_data": "{\"origin\":\"hello-retail/product-producer-automation\",\"data\":{\"id\":\"4579874\",\"brand\":\"POLO RALPH LAUREN\",\"name\":\"Polo Ralph Lauren 3-Pack Socks\",\"description\":\"PAGE:/s/polo-ralph-lauren-3-pack-socks/4579874\",\"category\":\"Socks for Men\",\"price\":\"123\"}}"},
+  {"path": "product-catalog-builder/image", "post_data": "{\"origin\":\"hello-retail/product-producer-automation\",\"data\":{\"id\":\"4579874\",\"image\":\"erik.hello-retail.biz/i/p/4579874\"}}"},
+  {"path": "product-catalog-api/products", "post_data": "{\"queryStringParameters\":{\"category\":\"Socks for Men\"}}"},
+  {"path": "product-catalog-api/categories", "post_data": ""},
+  {"path": "product-purchase", "post_data": "{\"id\":\"4579874\",\"storeCC\":true,\"creditCard\":\"1234123412341234\"}"},
+  {"path": "product-photos-register", "post_data": "{\"origin\":\"hello-retail/product-producer-automation\",\"data\":{\"id\":\"654{}\",\"phone\":\"5551231{}\"}}"},
+  {"path": "product-photos/request", "post_data": "{\"origin\":\"hello-retail/product-producer-automation\",\"data\":{\"id\":\"4579874\",\"brand\":\"POLO RALPH LAUREN\",\"name\":\"Polo Ralph Lauren 3-Pack Socks\",\"description\":\"PAGE:/s/polo-ralph-lauren-3-pack-socks/4579874\",\"category\":\"Socks for Men\"}}"},
+  {"path": "product-photos/photos", "post_data": "{\"MediaUrl0\":\"http://192.168.58.1:8000\",\"MediaContentType0\":\"image/jpeg\",\"From\":\"+15551231{}\"}"}
+]

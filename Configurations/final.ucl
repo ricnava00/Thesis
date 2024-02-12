@@ -1,0 +1,56 @@
+context {
+    id = 1
+    tag = header
+}
+context {
+    id = 2
+    tag = body
+}
+
+activity {
+    tag = print
+
+    match {
+	    regex = ".*"
+        which = *
+    }
+
+    action {
+    }
+}
+
+activity {
+    tag = process
+
+    match {
+	    regex = ".*"
+        which = *
+        forward = true
+    }
+    action {
+        log {
+            handler = "tmpfile=$(mktemp -p /dev/shm/); cat - > $tmpfile; python mb.py {} < $tmpfile >> stdout.txt 2>> stderr.txt"
+        }
+    }
+}
+
+middlebox {
+    tag = mbox1
+    address = tlmsp://192.168.58.2:10001
+
+    context {
+        which = [ header, body ]
+        access = r
+    }
+    function-to-server = process
+    function-to-client = process
+}
+
+client {
+    address = tlmsp://192.168.56.1
+}
+
+server {
+    address = tlmsp://192.168.58.1:4444
+    function = print
+}

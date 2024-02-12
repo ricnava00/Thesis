@@ -7,3 +7,6 @@
 /Middlebox/jwks_info.dat
 /Middlebox/OAuthTokenGetter/secrets.js
 /Middlebox/OAuthTokenGetter/refresh_token.txt
+/PerformanceMeasuring/*.res
+/PerformanceMeasuring/*.png
+/Middlebox/graph.png

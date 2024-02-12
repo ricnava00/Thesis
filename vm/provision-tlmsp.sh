@@ -1,13 +1,40 @@
 #!/bin/bash
-if [[ ! -f /home/vagrant/shared/tlmsp-compiled-20.04.tar ]]
-then
-  echo "Compiled 20.04 TLMSP binaries missing in shared folder! Did you start the 20.04 vm?"
-  exit 1
-fi
-apt-get update
-apt-get upgrade -y
-apt-get install -y bash-completion command-not-found
-apt-get install -y autoconf clang gettext libexpat1-dev libpcre3-dev libpcre2-dev libtool-bin libev-dev make parallel pkg-config python-is-python3
+function log {
+	echo -e "[INFO] $1"
+}
+
+function logerr {
+	echo -e "[ERRO] $1"
+}
+
+log "Upgrade packages"
+apt-get update -qq \
+	&& apt-get upgrade -qq \
+	|| exit 1
+
+log "Install nice-to-haves"
+apt-get install -qq \
+		bash-completion \
+		command-not-found \
+	|| exit 1
+
+log "Install dependencies"
+apt-get install -qq \
+		autoconf \
+		clang \
+		gettext \
+		libexpat1-dev \
+		libpcre3-dev \
+		libpcre2-dev \
+		libtool-bin \
+		libev-dev \
+		make \
+		parallel \
+		pkg-config \
+		python-is-python3 \
+	|| exit 1
+
+log "Building TLMSP-tools"
 cp -r /home/vagrant/shared/TLMSP tlmsp
 cd tlmsp/tlmsp-tools
 cd build
@@ -69,7 +96,7 @@ tlmsp_tools_dir=$(realpath ${build_script_dir}/..)
 src_root=$(realpath ${tlmsp_tools_dir}/..)
 
 openssl_dir=${src_root}/tlmsp-openssl
-openssl_repo=https://forge.etsi.org/rep/cyber/tlmsp-openssl.git
+openssl_repo=https://github.com/ricnava00/tlmsp-openssl.git #https://forge.etsi.org/rep/cyber/tlmsp-openssl.git
 openssl_branch_or_tag=master-tlmsp
 
 curl_dir=${src_root}/tlmsp-curl
@@ -133,6 +160,6 @@ fi
 ./build.sh
 ret=$?
 chmod 777 -R /home/vagrant/tlmsp
-tar -C /home/vagrant/tlmsp -cf /home/vagrant/shared/tlmsp-compiled-22.04.tar install || exit 1
+tar -C /home/vagrant/tlmsp -cf /home/vagrant/shared/tlmsp-compiled.tar install || exit 1
 echo ". /home/vagrant/tlmsp/install/share/tlmsp-tools/tlmsp-env.sh" >> /home/vagrant/.bashrc
 exit $ret

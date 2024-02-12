@@ -3,11 +3,10 @@ import pickle
 import re
 import sys
 from pprint import pprint
-
 import requests
 from typing import Type, Callable
-
 from MessageTypes import *
+from jwtParser import *
 
 
 class Message:
@@ -47,12 +46,8 @@ states = [
 ]
 
 
-def get_email_from_google_token(bearer: str) -> str:
-    r = requests.get("https://www.googleapis.com/oauth2/v2/userinfo", headers={"Authorization": bearer})
-    if r.ok:
-        return r.json()['email']
-    else:
-        raise Exception(r.json())
+def log(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 
 def main():
@@ -64,7 +59,9 @@ def main():
         waiting_bodies = pickle.load(open("waiting.dat", "rb"))
     connection_id = int(sys.argv[1])
     splice_id = int(sys.argv[2])
-    is_request = bool(int(sys.argv[3]))
+    is_response = bool(int(sys.argv[3]))
+    print(f"{connection_id} {splice_id} {is_response}")
+    log(f"{connection_id} {splice_id} {is_response}")
     input_data = sys.stdin.read()
     if input_data is None:
         return
@@ -73,7 +70,7 @@ def main():
         body = input_data
         match_groups, headers, old_body = waiting_bodies[connection_id]
         body = old_body + body
-        if is_request:
+        if not is_response:
             method, uri, http_version = match_groups
         else:
             http_version, response_code = match_groups
@@ -82,7 +79,7 @@ def main():
         tmp = header.split("\r\n")
         req = tmp.pop(0)
 
-        if is_request:
+        if not is_response:
             match = re.match(r"(GET|POST|HEAD|PUT|DELETE) ([^ ]+) HTTP/(\d+(?:\.\d+)?)", req)
             if not match:
                 print("Invalid request")
@@ -108,13 +105,16 @@ def main():
         del waiting_bodies[connection_id]
         pickle.dump(waiting_bodies, open("waiting.dat", "wb"))
 
-    if is_request:
+    if not is_response:
         print(f"method: {method}, uri: {uri}, http_version: {http_version}")
 
         user = "Unknown"
         if "Authorization" in headers:
             try:
-                user = get_email_from_google_token(headers["Authorization"])
+                id_token = headers["Authorization"]
+                if id_token.startswith("Bearer "):
+                    id_token = headers["Authorization"][7:]
+                user = parse_jwt(id_token)["email"]
             except Exception as e:
                 print("\033[1;33mCouldn't get email from token: " + str(e) + "\033[0m")
         else:

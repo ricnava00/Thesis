@@ -1,0 +1,72 @@
+
+context {
+    id = 1
+    tag = header
+}
+context {
+    id = 2
+    tag = body
+}
+
+activity {
+    tag = print
+
+    match {
+        which = *
+	    regex = ".*"
+    }
+
+    action {
+    }
+}
+
+activity {
+    tag = fastforward-h
+
+    match {
+        regex = ".+"
+        which = header
+    }
+    action {
+        send {
+            context = header
+            template = ${0}
+        }
+    }
+}
+
+activity {
+    tag = fastforward-b
+
+    match {
+        regex = ".+"
+        which = body
+    }
+    action {
+        send {
+            context = body
+            template = ${0}
+        }
+    }
+}
+
+middlebox {
+    tag = mbox1
+    address = tlmsp://192.168.58.2:10001
+
+    context {
+        which = [ header, body ]
+        access = rw
+    }
+    function-to-server = [ fastforward-h, fastforward-b ]
+    function-to-client = [ fastforward-h, fastforward-b ]
+}
+
+client {
+    address = tlmsp://192.168.56.1
+}
+
+server {
+    address = tlmsp://192.168.58.1:4444
+    function = print
+}

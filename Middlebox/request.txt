@@ -1,8 +1,0 @@
-POST /function/product-catalog-builder/product HTTP/1.1
-Host: 192.168.58.1:4444
-User-Agent: curl/7.65.1-TLMSP
-Accept: */*
-Content-Type: application/json
-Content-Length: 287
-
-{  "origin": "hello-retail/product-producer-automation",  "data": {    "id": "4579874",    "brand": "POLO RALPH LAUREN",    "name": "Polo Ralph Lauren 3-Pack Socks",    "description": "PAGE:/s/polo-ralph-lauren-3-pack-socks/4579874",    "category": "Socks for Men",    "price": "123"  }}

@@ -1,0 +1,65 @@
+context {
+    id = 1
+    tag = header
+}
+context {
+    id = 2
+    tag = body
+}
+
+activity {
+    tag = print
+
+    match {
+	    regex = ".*"
+        which = *
+    }
+
+    action {
+    }
+}
+
+activity {
+    tag = forward-h
+
+    match {
+        regex = ".+"
+        which = header
+        forward = true
+    }
+    action {
+    }
+}
+
+activity {
+    tag = forward-b
+
+    match {
+        regex = ".+"
+        which = body
+        forward = true
+    }
+    action {
+    }
+}
+
+middlebox {
+    tag = mbox1
+    address = tlmsp://192.168.58.2:10001
+
+    context {
+        which = [ header, body ]
+        access = r
+    }
+    function-to-server = [ forward-h, forward-b ]
+    function-to-client = [ forward-h, forward-b ]
+}
+
+client {
+    address = tlmsp://192.168.56.1
+}
+
+server {
+    address = tlmsp://192.168.58.1:4444
+    function = print
+}
