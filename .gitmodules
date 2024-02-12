@@ -1,8 +1,8 @@
 [submodule "TLMSP/tlmsp-tools"]
-	path = TLMSP/tlmsp-tools
+	path = ETSI/TLMSP/tlmsp-tools
 	url = https://github.com/ricnava00/tlmsp-tools
 [submodule "TLMSP/tlmsp-openssl"]
-	path = TLMSP/tlmsp-openssl
+	path = ETSI/TLMSP/tlmsp-openssl
 	url = https://github.com/ricnava00/tlmsp-openssl
 [submodule "hello-retail"]
 	path = hello-retail
