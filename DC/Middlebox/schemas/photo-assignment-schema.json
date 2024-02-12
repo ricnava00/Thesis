@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "self": {
+    "vendor": "com.nava",
+    "name": "product-photos/assignment-record",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "From": {
+      "type": "string",
+      "pattern": "^\\+?[1-9]\\d{1,14}$"
+    },
+    "MediaUrl0": {
+      "type": "string",
+      "format": "url"
+    },
+    "MediaContentType0": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "From",
+    "MediaUrl0",
+    "MediaContentType0"
+  ],
+  "additionalProperties": true
+}

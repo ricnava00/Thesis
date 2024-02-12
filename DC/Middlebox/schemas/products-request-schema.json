@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "self": {
+    "vendor": "com.nava",
+    "name": "products/request",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "queryStringParameters": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "category"
+      ],
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "queryStringParameters"
+  ],
+  "additionalProperties": true
+}

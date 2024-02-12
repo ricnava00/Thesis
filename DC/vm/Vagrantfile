@@ -1,0 +1,71 @@
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
+Vagrant.configure("2") do |config|
+
+  config.vm.define "mb" do |h|
+    h.vm.box = "bento/ubuntu-22.04"
+    h.vm.hostname = 'mb'
+
+    # to create a private network with the name intnet-1, auto-config false because we will set the IPs and the network by ourself
+    h.vm.network "private_network", virtualbox__intnet: "intnet-1", auto_config: false
+    h.vm.network "private_network", virtualbox__intnet: "intnet-2", auto_config: false
+
+    h.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--memory", 8192]
+      v.customize ["modifyvm", :id, "--name", "mb"]
+      v.cpus = 8
+      v.customize ["modifyvm", :id, "--nicpromisc2", "allow-vms"]
+      v.customize ["modifyvm", :id, "--nicpromisc3", "allow-vms"]
+    end
+
+    h.vm.provision "shell", path: "provision-mb.sh", privileged: false
+    h.vm.provision "shell", path: "ip-mb.sh", run: "always", name: "Set IPs"
+
+    h.vm.synced_folder "..", "/home/vagrant/shared"
+  end
+
+  config.vm.define "free5gc" do |h|
+    h.vm.box = "bento/ubuntu-22.04"
+    h.vm.hostname = 'free5gc'
+    h.vm.network "forwarded_port", guest: 5000, host: 5000
+
+    h.vm.network "private_network", virtualbox__intnet: "intnet-1", auto_config: false
+
+    h.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--memory", 8192]
+      v.customize ["modifyvm", :id, "--name", "free5gc"]
+      v.cpus = 8
+      v.customize ["modifyvm", :id, "--nicpromisc2", "allow-vms"]
+    end
+
+    h.vm.provision "shell", path: "provision-free5gc.sh"
+    h.vm.provision "shell", path: "ip-free5gc.sh", run: "always", name: "Set IPs"
+
+    h.vm.synced_folder "..", "/home/vagrant/shared"
+  end
+
+  config.vm.define "openfaas" do |h|
+    h.vm.box = "bento/ubuntu-22.04"
+    h.vm.hostname = 'openfaas'
+    h.vm.network "forwarded_port", guest: 8080, host: 5001
+
+    h.vm.network "private_network", virtualbox__intnet: "intnet-2", auto_config: false
+
+    h.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--memory", 8192]
+      v.customize ["modifyvm", :id, "--name", "openfaas"]
+      v.cpus = 8
+      v.customize ["modifyvm", :id, "--nicpromisc2", "allow-vms"]
+    end
+
+    h.vm.provision "shell", path: "provision-openfaas-root.sh", name: "Setup - root"
+    h.vm.provision "shell", path: "provision-openfaas-user.sh", privileged: false, name: "Setup - user"
+    h.vm.provision "shell", path: "ip-openfaas.sh", run: "always", name: "Set IPs"
+    #h.vm.provision "shell", path: "startup-openfaas.sh", run: "always", name: "Start openfaas" #Port forwarding dies for some reason, run it manually after startup
+
+    h.vm.synced_folder "..", "/home/vagrant/shared"
+  end
+end

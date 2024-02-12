@@ -1,0 +1,38 @@
+diff --git a/src/crypto/tls/handshake_server_tls13.go b/src/crypto/tls/handshake_server_tls13.go
+old mode 100644
+new mode 100755
+index 2accb69a82..3e08afbea7
+--- a/src/crypto/tls/handshake_server_tls13.go
++++ b/src/crypto/tls/handshake_server_tls13.go
+@@ -569,10 +569,12 @@ func (hs *serverHandshakeStateTLS13) pickCertificate() error {
+ 
+ 	hs.cert = certificate
+ 
++	fmt.Printf("Delegated credentials supported: %t\n", hs.clientHello.delegatedCredentialSupported)
+ 	if hs.clientHello.delegatedCredentialSupported && len(hs.clientHello.supportedSignatureAlgorithmsDC) > 0 {
+ 		// getDelegatedCredential selects a delegated credential that the client has advertised support for, if possible.
+ 		delegatedCredentialPair, err := getDelegatedCredential(clientHelloInfo(hs.ctx, c, hs.clientHello), hs.cert)
+ 		if err != nil {
++			fmt.Printf("a Delegated Credential was not found. Fallback to the certificate. Err: %s\n",err)
+ 			// a Delegated Credential was not found. Fallback to the certificate.
+ 			return nil
+ 		}
+@@ -580,15 +582,18 @@ func (hs *serverHandshakeStateTLS13) pickCertificate() error {
+ 			// Even if the Delegated Credential has already been marshalled, be sure it is the correct one.
+ 			delegatedCredentialPair.DC.raw, err = delegatedCredentialPair.DC.Marshal()
+ 			if err != nil {
++				fmt.Printf("invalid Delegated Credential. Fallback to the certificate.\n")
+ 				// invalid Delegated Credential. Fallback to the certificate.
+ 				return nil
+ 			}
+ 			hs.sigAlg = delegatedCredentialPair.DC.cred.expCertVerfAlgo
++			fmt.Printf("Delegated credentials found, using: %v\n", hs.sigAlg)
+ 
+ 			hs.cert.PrivateKey = delegatedCredentialPair.PrivateKey
+ 			hs.cert.DelegatedCredential = delegatedCredentialPair.DC.raw
+ 		}
+ 	}
++	fmt.Printf("All OK\n")
+ 	return nil
+ }
+ 
