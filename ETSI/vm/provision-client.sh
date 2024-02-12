@@ -26,12 +26,3 @@ apt-get install -qq \
 		bash-completion \
 		command-not-found \
 	|| exit 1
-
-log "Install dependencies"
-#apt-get install -y autoconf clang gettext libexpat1-dev libpcre3-dev libpcre2-dev libtool-bin libev-dev make parallel pkg-config python-is-python3
-
-#log "Update linux kernel"
-#apt-get install -qq \
-#		linux-image-generic \
-#		linux-headers-generic \
-#	|| exit 1

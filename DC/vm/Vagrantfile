@@ -23,27 +23,28 @@ Vagrant.configure("2") do |config|
     h.vm.provision "shell", path: "ip-mb.sh", run: "always", name: "Set IPs"
 
     h.vm.synced_folder "..", "/home/vagrant/shared"
+    h.vm.synced_folder "../..", "/home/vagrant/external"
   end
 
-  config.vm.define "free5gc" do |h|
+  config.vm.define "client" do |h|
     h.vm.box = "bento/ubuntu-22.04"
-    h.vm.hostname = 'free5gc'
-    h.vm.network "forwarded_port", guest: 5000, host: 5000
+    h.vm.hostname = 'client'
 
     h.vm.network "private_network", virtualbox__intnet: "intnet-1", auto_config: false
 
     h.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       v.customize ["modifyvm", :id, "--memory", 8192]
-      v.customize ["modifyvm", :id, "--name", "free5gc"]
+      v.customize ["modifyvm", :id, "--name", "client"]
       v.cpus = 8
       v.customize ["modifyvm", :id, "--nicpromisc2", "allow-vms"]
     end
 
-    h.vm.provision "shell", path: "provision-free5gc.sh"
-    h.vm.provision "shell", path: "ip-free5gc.sh", run: "always", name: "Set IPs"
+    h.vm.provision "shell", path: "provision-client.sh"
+    h.vm.provision "shell", path: "ip-client.sh", run: "always", name: "Set IPs"
 
     h.vm.synced_folder "..", "/home/vagrant/shared"
+    h.vm.synced_folder "../..", "/home/vagrant/external"
   end
 
   config.vm.define "openfaas" do |h|
@@ -67,5 +68,6 @@ Vagrant.configure("2") do |config|
     #h.vm.provision "shell", path: "startup-openfaas.sh", run: "always", name: "Start openfaas" #Port forwarding dies for some reason, run it manually after startup
 
     h.vm.synced_folder "..", "/home/vagrant/shared"
+    h.vm.synced_folder "../..", "/home/vagrant/external"
   end
 end

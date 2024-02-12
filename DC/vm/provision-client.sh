@@ -16,3 +16,14 @@ mkdir /home/vagrant/go
 tar -C /home/vagrant/go -xf /home/vagrant/shared/go-compiled.tar
 echo 'export PATH=/home/vagrant/go/bin:$PATH' >> ~/.bashrc
 export PATH=/home/vagrant/go/bin:$PATH
+
+log "Upgrade packages"
+apt-get update -qq \
+	&& apt-get upgrade -qq \
+	|| exit 1
+
+log "Install nice-to-haves"
+apt-get install -qq \
+		bash-completion \
+		command-not-found \
+	|| exit 1

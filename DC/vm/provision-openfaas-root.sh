@@ -7,17 +7,6 @@ function logerr {
 	echo -e "[ERRO] $1"
 }
 
-if [[ ! -f /home/vagrant/shared/tlmsp-compiled-22.04.tar ]]
-then
-	logerr "Compiled 22.04 TLMSP binaries missing in shared folder! Did the etsi vm fail?"
-	exit 1
-fi
-mkdir /home/vagrant/tlmsp
-tar -C /home/vagrant/tlmsp -xf /home/vagrant/shared/tlmsp-compiled-22.04.tar
-echo ". /home/vagrant/tlmsp/install/share/tlmsp-tools/tlmsp-env.sh" >> /home/vagrant/.bashrc
-#For ease of mofication outside of VM
-ln -sf /home/vagrant/shared/vm/httpd_tlmsp.conf /home/vagrant/tlmsp/install/etc/apache24/
-
 log "Upgrade packages"
 apt-get update -qq \
 	&& apt-get upgrade -qq \

@@ -18,9 +18,14 @@ sudo apt-get install -qq \
 		command-not-found
 
 log "Install dependencies"
-sudo apt-get install -qq golang-go
+sudo apt-get install -qq golang-go \
+  || exit 1
 
-git clone https://github.com/cloudflare/go
+if [[ -f /home/vagrant/shared/go ]]; then
+  cp -r /home/vagrant/shared/go go
+else
+  git clone https://github.com/ricnava00/go
+fi
 cd go/src
 ./make.bash
 echo 'export PATH=/home/vagrant/go/bin:$PATH' >> ~/.bashrc
