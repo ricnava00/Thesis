@@ -12,6 +12,7 @@ parser.add_argument('-a', '--auth-token', help='Google OAuth2 token', required=T
 parser.add_argument('--tlmsp', metavar="UCL_PATH", help='Enable TLMSP, and use the specified ucl file')
 parser.add_argument('--go', help='Use go client instead of curl', action='store_true')
 parser.add_argument('-t', '--time', default=60, help='Duration of the test in seconds')
+parser.add_argument('-e', '--continue-on-error', help='Continue on error', action='store_true')
 
 try:
     with open("requests.json") as f:
@@ -51,6 +52,8 @@ for r in requests:
     command += 'echo "Failed: " >&2 \n'
     command += 'echo ' + shlex.quote(curl) + ' >&2 \n'
     command += 'echo >&2 \n'
+    if not args.continue_on_error:
+        command += 'exit 1\n'
     command += 'fi\n'
     command += 'let total++\n'
     command += 'echo -n "$total $failed "; date +%s%N\n'
