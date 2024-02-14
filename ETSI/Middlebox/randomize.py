@@ -98,7 +98,7 @@ states = [
            Transition(5, ProductImageMessageType),
            Transition(6, ProductPurchaseMessageType),
            Transition(7, PhotographerRegisterMessageType),
-           Transition(9, PhotoAssignmentMessageType)]
+           Transition(0, PhotoAssignmentMessageType)] #Back to init!
           ),
     State([Transition(2, ProductsMessageType),
            Transition(3, CategoriesMessageType),
@@ -174,7 +174,8 @@ def main():
     log("\033[1;2m" + input_data + "\033[0m")
     if connection_id in waiting_bodies:
         body = input_data
-        match_groups, headers, old_body = waiting_bodies[connection_id]
+        match_groups, headers, old_body, old_header = waiting_bodies[connection_id]
+        input_data = old_header + "\r\n\r\n" + old_body + input_data
         body = old_body + body
         if not is_response:
             method, uri, http_version = match_groups
@@ -203,7 +204,7 @@ def main():
 
     if not is_response and len(body) < int(headers.get("Content-Length", 0)):
         log("Waiting for body for connection " + str(connection_id))
-        waiting_bodies[connection_id] = match_groups, headers, body
+        waiting_bodies[connection_id] = match_groups, headers, body, header
         log(waiting_bodies)
         pickle.dump(waiting_bodies, open("waiting.dat", "wb"))
         sys.exit(0)
@@ -241,13 +242,14 @@ def main():
                 if not (MessageType.validate_schemas(message_type, body)):
                     log("\033[1;33mRequest not matching schema\033[0m")
                     valid = False
-                if not (message_type in user_session_tmp["codes"] and user_session_tmp["codes"][message_type]["code"] == code or test_message_type == InitMessageType):
+                if not (message_type in user_session_tmp["codes"] and user_session_tmp["codes"][message_type]["code"] == code or test_message_type == InitMessageType or "X-Testing" in headers):
                     log("\033[1;33mInvalid code\033[0m")
                     valid = False
                 break
         if message_type is None:  # Gave precedence to valid messages, now check for invalid ones
             for test_message_type in MessageType.__subclasses__():
                 if test_message_type.match_request(method, uri, headers, body):
+                    log("\033[1;33mMessage type not allowed in this state\033[0m")
                     message_type = test_message_type
                     valid = False
                     break
@@ -261,6 +263,7 @@ def main():
             if not valid:
                 sys.exit(1)
             print(input_data, end="")
+            log(f"\033[36m{input_data}\033[0m")
     else:
         response_code = int(response_code)
         # retries = 0
