@@ -2,23 +2,32 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/md5"
 	"fmt"
 	"hash/fnv"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	_ "github.com/MicahParks/keyfunc/v3"
+	"github.com/coreos/go-oidc/v3/oidc"
+	_ "github.com/golang-jwt/jwt/v5"
 )
 
 const (
+	oidcServer            = "accounts.google.com"
 	CodeExpirationSeconds = 600
 	AllowTestingHeader    = true // After executing code check, accept even if code is invalid
 )
 
 var mutex sync.Mutex
+var ctx = context.Background()
+var verifier *oidc.IDTokenVerifier
 
 type Message struct {
 	ConnectionID int
@@ -68,7 +77,13 @@ func generateCode() string {
 }
 
 func parseJWT(idToken string) (map[string]any, error) {
-	return (map[string]any{"email": "TODO"}), nil
+	token, err := verifier.Verify(ctx, idToken)
+	if err != nil {
+		return nil, err
+	}
+	claims := map[string]any{}
+	token.Claims(&claims)
+	return (map[string]any{"email": claims["email"]}), nil
 }
 
 func processRequest(inputData *http.Request) (bool, string, *MessageType) {
@@ -165,4 +180,12 @@ func processResponse(inputData *http.Response, user string, messageType any) {
 		}
 	}
 	session[user] = userSessionTmp
+}
+
+func init() {
+	provider, err := oidc.NewProvider(ctx, "https://accounts.google.com")
+	if err != nil {
+		log.Fatal(err)
+	}
+	verifier = provider.Verifier(&oidc.Config{SkipClientIDCheck: true})
 }
