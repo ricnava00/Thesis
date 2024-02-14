@@ -34,6 +34,9 @@ apt-get install -qq \
 		python-is-python3 \
 	|| exit 1
 
+pip install -q jsonschema matplotlib networkx \
+  || exit 1
+
 log "Building TLMSP-tools"
 cp -r /home/vagrant/shared/TLMSP tlmsp
 cd tlmsp/tlmsp-tools
