@@ -10,3 +10,6 @@
 [submodule "DC/go"]
 	path = DC/go
 	url = https://github.com/ricnava00/go
+[submodule "ETSI/TLMSP/tlmsp-curl"]
+	path = ETSI/TLMSP/tlmsp-curl
+	url = https://github.com/ricnava00/tlmsp-curl

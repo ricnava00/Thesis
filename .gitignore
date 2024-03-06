@@ -10,5 +10,7 @@
 /OAuthTokenGetter/secrets.js
 /OAuthTokenGetter/refresh_token.txt
 /DC/go-compiled.tar
-/PerformanceMeasuring/*.res
+/PerformanceMeasuring/**/*.res
+/PerformanceMeasuring/*/
 /PerformanceMeasuring/*.png
+/DC/Middlebox/*.dat

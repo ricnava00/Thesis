@@ -37,82 +37,65 @@ class State:
     transitions: list[Transition]
 
 
+# testing fsm looping through all states (the weird order is to stay consistent with the numbering of the production graph)
 states = [
     State([Transition(1, InitMessageType)]),
-    State([Transition(2, ProductsMessageType),
-           Transition(3, CategoriesMessageType),
-           Transition(4, BuildProductMessageType),
-           Transition(7, PhotographerRegisterMessageType)]
-          ),
-    State([Transition(3, CategoriesMessageType),
-           Transition(4, BuildProductMessageType),
-           Transition(5, ProductImageMessageType),
-           Transition(6, ProductPurchaseMessageType),
-           Transition(7, PhotographerRegisterMessageType),
-           Transition(8, PhotoRequestMessageType),
-           Transition(9, PhotoAssignmentMessageType)]
-          ),
-    State([Transition(2, ProductsMessageType),
-           Transition(4, BuildProductMessageType),
-           Transition(5, ProductImageMessageType),
-           Transition(6, ProductPurchaseMessageType),
-           Transition(7, PhotographerRegisterMessageType),
-           Transition(8, PhotoRequestMessageType),
-           Transition(9, PhotoAssignmentMessageType)]
-          ),
-    State([Transition(2, ProductsMessageType),
-           Transition(3, CategoriesMessageType),
-           Transition(5, ProductImageMessageType),
-           Transition(6, ProductPurchaseMessageType),
-           Transition(7, PhotographerRegisterMessageType),
-           Transition(8, PhotoRequestMessageType),
-           Transition(9, PhotoAssignmentMessageType)]
-          ),
-    State([Transition(2, ProductsMessageType),
-           Transition(3, CategoriesMessageType),
-           Transition(4, BuildProductMessageType),
-           Transition(6, ProductPurchaseMessageType),
-           Transition(7, PhotographerRegisterMessageType),
-           Transition(8, PhotoRequestMessageType),
-           Transition(9, PhotoAssignmentMessageType)]
-          ),
-    State([Transition(2, ProductsMessageType),
-           Transition(3, CategoriesMessageType),
-           Transition(4, BuildProductMessageType),
-           Transition(5, ProductImageMessageType),
-           Transition(7, PhotographerRegisterMessageType),
-           Transition(8, PhotoRequestMessageType),
-           Transition(9, PhotoAssignmentMessageType)]
-          ),
-    State([Transition(2, ProductsMessageType),
-           Transition(3, CategoriesMessageType),
-           Transition(4, BuildProductMessageType),
-           Transition(5, ProductImageMessageType),
-           Transition(6, ProductPurchaseMessageType),
-           Transition(8, PhotoRequestMessageType),
-           Transition(9, PhotoAssignmentMessageType)]
-          ),
-    State([Transition(2, ProductsMessageType),
-           Transition(3, CategoriesMessageType),
-           Transition(4, BuildProductMessageType),
-           Transition(5, ProductImageMessageType),
-           Transition(6, ProductPurchaseMessageType),
-           Transition(7, PhotographerRegisterMessageType),
-           Transition(0, PhotoAssignmentMessageType)] #Back to init!
-          ),
-    State([Transition(2, ProductsMessageType),
-           Transition(3, CategoriesMessageType),
-           Transition(4, BuildProductMessageType),
-           Transition(5, ProductImageMessageType),
-           Transition(6, ProductPurchaseMessageType),
-           Transition(7, PhotographerRegisterMessageType),
-           Transition(8, PhotoRequestMessageType)]
-          )
+    State([Transition(4, BuildProductMessageType)]),
+    State([Transition(3, CategoriesMessageType)]),
+    State([Transition(6, ProductPurchaseMessageType)]),
+    State([Transition(5, ProductImageMessageType)]),
+    State([Transition(2, ProductsMessageType)]),
+    State([Transition(7, PhotographerRegisterMessageType)]),
+    State([Transition(8, PhotoRequestMessageType)]),
+    State([Transition(0, PhotoAssignmentMessageType)]),
 ]
+
+# possible fsm in production
+# states = [
+#     State([Transition(1, InitMessageType)]),
+#     State([Transition(2, ProductsMessageType),
+#            Transition(3, CategoriesMessageType),
+#            Transition(4, BuildProductMessageType),
+#            Transition(7, PhotographerRegisterMessageType)]
+#           ),
+#     State([Transition(6, ProductPurchaseMessageType)]
+#           ),
+#     State([Transition(2, ProductsMessageType),
+#            Transition(4, BuildProductMessageType)]
+#           ),
+#     State([Transition(5, ProductImageMessageType),
+#            Transition(8, PhotoRequestMessageType)]
+#           ),
+#     State([Transition(2, ProductsMessageType),
+#            Transition(3, CategoriesMessageType),
+#            Transition(4, BuildProductMessageType),
+#            Transition(7, PhotographerRegisterMessageType)]
+#           ),
+#     State([Transition(2, ProductsMessageType),
+#            Transition(3, CategoriesMessageType),
+#            Transition(4, BuildProductMessageType),
+#            Transition(6, ProductPurchaseMessageType),
+#            Transition(7, PhotographerRegisterMessageType)]
+#           ),
+#     State([Transition(9, PhotoAssignmentMessageType)]
+#           ),
+#     State([Transition(2, ProductsMessageType),
+#            Transition(3, CategoriesMessageType),
+#            Transition(4, BuildProductMessageType),
+#            Transition(7, PhotographerRegisterMessageType)]
+#           ),
+#     State([Transition(9, PhotoAssignmentMessageType)]
+#           )
+# ]
 
 if 'print_graph_and_exit' in globals() and print_graph_and_exit:
     import networkx as nx
     from matplotlib import pyplot as plt, patches as mpatches, colors as mcolors
+
+    plt.rcParams.update({'font.size': 20})
+    plt.rcParams.update({'font.family': 'serif'})
+    # comment to print without LaTeX installed
+    plt.rcParams.update({'text.usetex': True})
 
     colors = list(mcolors.TABLEAU_COLORS.values())
     if len(colors) < len(states):
@@ -135,15 +118,15 @@ if 'print_graph_and_exit' in globals() and print_graph_and_exit:
     pos = nx.circular_layout(G.subgraph(range(1, len(states))))
     pos = {k: (-x, y) for k, (x, y) in pos.items()}
     pos[0] = (min([x for x, _ in pos.values()]) - 0.5, 0)
-    nx.draw_networkx_nodes(G, pos, node_size=700)
-    nx.draw_networkx_labels(G, pos, font_size=14)
+    nx.draw_networkx_nodes(G, pos, node_size=700, node_color="white", edgecolors="black")
+    nx.draw_networkx_labels(G, pos, font_size=24)
     edge_colors = [edgedata["color"] for _, _, edgedata in G.edges(data=True)]
-    nx.draw_networkx_edges(G, pos, edgelist=G.edges(), edge_color=edge_colors, arrows=True, node_size=700, connectionstyle='arc3, rad = 0.01')
-    patches = [mpatches.Patch(color=color, label=mt.__name__.removesuffix("MessageType")) for mt, color in colors.items()]
+    nx.draw_networkx_edges(G, pos, edgelist=G.edges(), edge_color=edge_colors, arrows=True, node_size=700, connectionstyle='arc3, rad = 0.02')
+    patches = [mpatches.Patch(color=color, label=mt.url.removeprefix("/function/")) for mt, color in colors.items()]
     plt.legend(handles=patches, loc="upper left", bbox_to_anchor=(1, 1), borderaxespad=0)
     plt.axis('off')
-    plt.savefig("graph.png", dpi=300, bbox_inches="tight")
-    exit(0)
+    plt.savefig("graph.pdf", dpi=300, bbox_inches="tight")
+    sys.exit(0)
 
 
 def log(*args, **kwargs):
@@ -231,7 +214,7 @@ def main():
         message_data = None
 
         user_session_tmp = session.get(user, {"messages": [], "state": 0, "codes": {}})  # To keep the session list clean, initialize a new session now but save it later only if there's a match
-        for n, code in user_session_tmp["codes"].items():
+        for n, code in list(user_session_tmp["codes"].items()):
             if code["expiration"] < time.time():
                 del user_session_tmp["codes"][n]
         code = headers.get("X-Code", None)
@@ -242,7 +225,7 @@ def main():
                 if not (MessageType.validate_schemas(message_type, body)):
                     log("\033[1;33mRequest not matching schema\033[0m")
                     valid = False
-                if not (message_type in user_session_tmp["codes"] and user_session_tmp["codes"][message_type]["code"] == code or test_message_type == InitMessageType or "X-Testing" in headers):
+                elif not (message_type in user_session_tmp["codes"] and user_session_tmp["codes"][message_type]["code"] == code or test_message_type == InitMessageType or "X-Testing" in headers):
                     log("\033[1;33mInvalid code\033[0m")
                     valid = False
                 break
@@ -290,19 +273,11 @@ def main():
             log(f"\033[1;31mFound {len(indexes)} messages with connection_id {connection_id}\033[0m")
         else:
             index, user = indexes[0]
-            if not session[user]["messages"][index].valid:
-                log("\033[1;31mResponse is relative to an invalid message, responding 403\033[0m")
-                response_code = 403
-                headers = {"Content-Length": "0"}
-                response = f"HTTP/{http_version} {response_code}\n"
-                for k, v in headers.items():
-                    response += f"{k}: {v}\n"
-                print(response)
-                log(f"\033[36m{response}\033[0m")
-                pass
+            if not session[user]["messages"][index].valid:  # Legacy, the middlebox doesn't forward invalid messages anymore
+                log("\033[1;31mResponse is relative to an invalid message\033[0m")
             else:
                 message_type = session[user]["messages"][index].type
-                if response_code == 200 or message_type == InitMessageType:
+                if response_code == 200:
                     session[user]["state"] = [t.to_state for t in states[session[user]["state"]].transitions if t.message_type == message_type][0]
                     session[user]["codes"] = {mt.message_type: {"code": generate_code(), "expiration": time.time() + CODE_EXPIRATION_SECONDS} for mt in states[session[user]["state"]].transitions}
                     log(session[user]["codes"])
@@ -314,7 +289,9 @@ def main():
                     response += "\n"
                     print(response, end="")
                     log(f"\033[36m{response}\033[0m")
-                # TODO else?
+                else:
+                    log(f"\033[1;31mResponse code {response_code}, forwarding\033[0m")
+                    print(input_data, end="")
 
             session[user]["messages"][index].response_code = response_code
 

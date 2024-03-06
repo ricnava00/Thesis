@@ -51,7 +51,8 @@ class MessageType:
         if isinstance(body, str):
             try:
                 json_body = json.loads(body or "null")
-            except json.decoder.JSONDecodeError:
+            except json.decoder.JSONDecodeError as e:
+                log(e)
                 return False
         else:
             json_body = body

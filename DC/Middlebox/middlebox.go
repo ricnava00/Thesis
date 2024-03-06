@@ -17,7 +17,7 @@ import (
 const (
 	port                    = ":8443"
 	targetUrl               = "http://192.168.58.1:8080"
-	useDelegatedCredentials = false
+	useDelegatedCredentials = true
 	certFile                = "../certs/cert.pem"
 	certKeyFile             = "../certs/key.pem"
 	delegatedFile           = "../certs/dc.cred"
@@ -72,12 +72,16 @@ func loadCertificate(certFile string) (tls.Certificate, error) {
 func main() {
 	var cert tls.Certificate
 	if !useDelegatedCredentials {
+		info("Warning: Delegated Credentials are not being used")
 		var err error
 		cert, err = tls.LoadX509KeyPair(certFile, certKeyFile)
 		if err != nil {
 			log.Fatalf("Failed to load X509 key pair: %v", err)
 		}
 	} else {
+		// Uncomment these and comment after to test on a system without modified go
+		// info("Uncomment")
+		// os.Exit(1)
 		var err error
 		cert, err = loadCertificate(certFile)
 		if err != nil {
@@ -141,6 +145,7 @@ func main() {
 					log.Println("Hijack failed: " + err.Error())
 					return
 				}
+				log.Println("Hijack OK")
 				conn.Close()
 			}
 			connectionID++
@@ -160,6 +165,7 @@ func main() {
 		Addr:      port,
 		Handler:   router,
 		TLSConfig: config,
+		TLSNextProto: map[string]func(*http.Server, *tls.Conn, http.Handler){}, // Force HTTP/1.1 for hijack support
 	}
 
 	log.Printf("Listening on %s...", port)

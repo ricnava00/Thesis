@@ -12,4 +12,4 @@ then
 	echo Check formatting of secrets.js
 	exit 1
 fi
-curl "https://oauth2.googleapis.com/token" -H "Content-Type: application/x-www-form-urlencoded" --data "client_id=$clientId&client_secret=$clientSecret&refresh_token=$refreshToken&grant_type=refresh_token"
+curl -s "https://oauth2.googleapis.com/token" -H "Content-Type: application/x-www-form-urlencoded" --data "client_id=$clientId&client_secret=$clientSecret&refresh_token=$refreshToken&grant_type=refresh_token"

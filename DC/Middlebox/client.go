@@ -5,12 +5,12 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 )
 
 func isFlagPassed(name string) bool {
@@ -60,12 +60,14 @@ func main() {
 	var headers []string
 	var postData string
 	var outputFile string
+	var measureTime bool
 
 	// Parse flags
 	flag.Var((*headerList)(&headers), "H", "Header")
 	flag.StringVar(&outputFile, "output", "", "File to write the response, if specified")
 	flag.StringVar(&outputFile, "o", "", "File to write the response, if specified (shorthand)")
 	flag.StringVar(&postData, "data", "", "POST data")
+	flag.BoolVar(&measureTime, "time", false, "Print response time")
 	flag.Parse()
 
 	var method string
@@ -78,7 +80,7 @@ func main() {
 	if flag.NArg() != 1 {
 		_, currentFile, _, _ := runtime.Caller(0)
 		originalFile := filepath.Base(currentFile)
-		fmt.Printf("Usage: %s [-H headers] [--data POST_data] url\n", originalFile)
+		fmt.Printf("Usage: %s [-H headers] [--data POST_data] [-o output_file] [--time] url\n", originalFile)
 		os.Exit(1)
 	}
 
@@ -97,19 +99,24 @@ func main() {
 	}()
 
 	// Display the URL and headers
+	startTime := time.Now()
 	responseCode, msg := httpsClient(method, url, headers, postData)
+	elapsedTime := time.Since(startTime).Seconds()
 	if responseCode != http.StatusOK {
 		fmt.Fprintf(os.Stderr, "Error: %d: %s\n", responseCode, msg)
 		os.Exit(1)
 	}
 	if outputFile != "" {
-		err := ioutil.WriteFile(outputFile, msg, 0644)
+		err := os.WriteFile(outputFile, msg, 0644)
 		if err != nil {
 			fmt.Printf("Error writing to output file: %v\n", err)
 			os.Exit(1)
 		}
 	} else {
 		fmt.Println(string(msg))
+	}
+	if measureTime {
+		fmt.Printf("%v\n", elapsedTime)
 	}
 }
 
