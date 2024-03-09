@@ -74,6 +74,10 @@ def run_curl(output_file):
     passthru(f"python measure.py -s http://{SRV_IP}:8080 -a {JWT} -o {output_file} -t {TEST_TIME}")
 
 
+def run_curl_tlmsp(output_file):
+    passthru(f". {client_tlmsp_install_path}/share/tlmsp-tools/tlmsp-env.sh; python measure.py -s http://{SRV_IP}:8080 -a {JWT} -o {output_file} -t {TEST_TIME}")
+
+
 def run_goclient(output_file):
     passthru(f"python measure.py -s http://{SRV_IP}:8080 -a {JWT} --go {client_dc_middlebox_path}/client -o {output_file} -t {TEST_TIME}")
 
@@ -146,29 +150,32 @@ _, stdout, _ = mb.exec_command("killall -s 9 middlebox_empty")
 stdout.channel.recv_exit_status()
 if not os.path.exists("auto"):
     os.mkdir("auto")
-cleardb()
 while True:
-    print("\033[1;36mDirect curl\033[0m");
+    print("\033[1;36mDirect curl-tlmsp\033[0m")
+    cleardb()
+    run_curl_tlmsp("auto/" + t() + "_direct_curl_tlmsp.res")
+    time.sleep(SLEEP_TIME)
+    print("\033[1;36mDirect curl\033[0m")
+    cleardb()
     run_curl("auto/" + t() + "_direct_curl.res")
     time.sleep(SLEEP_TIME)
+    print("\033[1;36mDirect go\033[0m")
     cleardb()
-    print("\033[1;36mDirect go\033[0m");
     run_goclient("auto/" + t() + "_direct_goclient.res")
     time.sleep(SLEEP_TIME)
+    print("\033[1;36mTLMSP forward\033[0m")
     cleardb()
-    print("\033[1;36mTLMSP forward\033[0m");
     run_tlmsp("read_write.ucl", "auto/" + t() + "_tlmsp_empty.res")
     time.sleep(SLEEP_TIME)
+    print("\033[1;36mTLMSP full\033[0m")
     cleardb()
-    print("\033[1;36mTLMSP full\033[0m");
     run_tlmsp("randomization.ucl", "auto/" + t() + "_tlmsp.res")
     time.sleep(SLEEP_TIME)
+    print("\033[1;36mDC forward\033[0m")
     cleardb()
-    print("\033[1;36mDC forward\033[0m");
     run_dc(True, "auto/" + t() + "_go_empty.res")
     time.sleep(SLEEP_TIME)
+    print("\033[1;36mDC full\033[0m")
     cleardb()
-    print("\033[1;36mDC full\033[0m");
     run_dc(False, "auto/" + t() + "_go.res")
     time.sleep(SLEEP_TIME)
-    cleardb()

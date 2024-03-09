@@ -1,4 +1,3 @@
-# start a webserver to spoof the image request
 import argparse
 import http.server
 import socketserver
@@ -7,12 +6,13 @@ import socketserver
 class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
+        self.send_header("Content-length", "0")
         self.end_headers()
 
     def do_POST(self):
         self.send_response(200)
+        self.send_header("Content-length", "0")
         self.end_headers()
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-p', '--port', default=8000, help='Port to serve on')
