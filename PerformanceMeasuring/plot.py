@@ -170,7 +170,10 @@ if 3 in plt.get_fignums():
 
 for i in plt.get_fignums():
     plt.figure(i)
-    plt.ylim(bottom=plt.ylim()[0], top=plt.ylim()[1] * 1.02)
+    bottom = plt.ylim()[0]
+    if bottom / plt.ylim()[1] < 0.25:
+        bottom = 0
+    plt.ylim(bottom=bottom, top=plt.ylim()[1] * 1.02)
     plt.legend(*zip(*labels), loc='upper left', bbox_to_anchor=(1, 1), ncol=1)
     plt.savefig(args.output[:-len(args.output.split(".")[-1]) - 1] + "-" + str(i) + "." + args.output.split(".")[-1], dpi=900 if i == 4 else 300, bbox_inches='tight')
 

@@ -38,13 +38,26 @@ class State:
 
 
 # testing fsm looping through all states (the weird order is to stay consistent with the numbering of the production graph)
+# states = [
+#     State([Transition(1, InitMessageType)]),
+#     State([Transition(4, BuildProductMessageType)]),
+#     State([Transition(3, CategoriesMessageType)]),
+#     State([Transition(6, ProductPurchaseMessageType)]),
+#     State([Transition(5, ProductImageMessageType)]),
+#     State([Transition(2, ProductsMessageType)]),
+#     State([Transition(7, PhotographerRegisterMessageType)]),
+#     State([Transition(8, PhotoRequestMessageType)]),
+#     State([Transition(0, PhotoAssignmentMessageType)]),
+# ]
+
+# testing fsm looping through all states (no weird order)
 states = [
     State([Transition(1, InitMessageType)]),
-    State([Transition(4, BuildProductMessageType)]),
-    State([Transition(3, CategoriesMessageType)]),
+    State([Transition(2, BuildProductMessageType)]),
+    State([Transition(3, ProductImageMessageType)]),
+    State([Transition(4, ProductsMessageType)]),
+    State([Transition(5, CategoriesMessageType)]),
     State([Transition(6, ProductPurchaseMessageType)]),
-    State([Transition(5, ProductImageMessageType)]),
-    State([Transition(2, ProductsMessageType)]),
     State([Transition(7, PhotographerRegisterMessageType)]),
     State([Transition(8, PhotoRequestMessageType)]),
     State([Transition(0, PhotoAssignmentMessageType)]),
