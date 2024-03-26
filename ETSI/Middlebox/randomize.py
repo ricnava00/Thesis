@@ -131,6 +131,8 @@ if 'print_graph_and_exit' in globals() and print_graph_and_exit:
     pos = nx.circular_layout(G.subgraph(range(1, len(states))))
     pos = {k: (-x, y) for k, (x, y) in pos.items()}
     pos[0] = (min([x for x, _ in pos.values()]) - 0.5, 0)
+    # pos = nx.circular_layout(G)
+    # pos = {k: (-x, y) for k, (x, y) in pos.items()}
     nx.draw_networkx_nodes(G, pos, node_size=700, node_color="white", edgecolors="black")
     nx.draw_networkx_labels(G, pos, font_size=24)
     edge_colors = [edgedata["color"] for _, _, edgedata in G.edges(data=True)]

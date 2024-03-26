@@ -29,6 +29,7 @@ parser.add_argument('-nt', '--no-types', action='store_true', help='Do not diffe
 parser.add_argument('-t', '--type', type=int, nargs="*", help='Select only requests of the specified type', choices=range(1, len(requests) + 1))
 parser.add_argument('-f', '--filter-percentile', type=float, default=100, help='Filter out the highest latencies')
 parser.add_argument('-s', '--stats-only', action='store_true', help='Only print stats')
+parser.add_argument('-c', '--compact', action='store_true', help='Legend on top')
 
 args = parser.parse_args()
 types = range(0, len(requests))
@@ -174,7 +175,10 @@ for i in plt.get_fignums():
     if bottom / plt.ylim()[1] < 0.25:
         bottom = 0
     plt.ylim(bottom=bottom, top=plt.ylim()[1] * 1.02)
-    plt.legend(*zip(*labels), loc='upper left', bbox_to_anchor=(1, 1), ncol=1)
+    if args.compact:
+        plt.legend(*zip(*labels), loc='lower center', bbox_to_anchor=(0.5, 1), ncol=2)
+    else:
+        plt.legend(*zip(*labels), loc='upper left', bbox_to_anchor=(1, 1), ncol=1)
     plt.savefig(args.output[:-len(args.output.split(".")[-1]) - 1] + "-" + str(i) + "." + args.output.split(".")[-1], dpi=900 if i == 4 else 300, bbox_inches='tight')
 
 print(table)
