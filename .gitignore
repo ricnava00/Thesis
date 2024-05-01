@@ -14,3 +14,5 @@
 /PerformanceMeasuring/*/
 /PerformanceMeasuring/*.png
 /DC/Middlebox/*.dat
+/ETSI/NewMiddlebox/*.dat
+go.sum
