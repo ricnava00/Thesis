@@ -17,15 +17,22 @@ sudo apt-get install -qq \
 		bash-completion \
 		command-not-found
 
-log "Install dependencies"
-sudo apt-get install -qq golang-go \
-  || exit 1
+log "Install Go"
+curl -s https://dl.google.com/go/go1.22.5.linux-amd64.tar.gz -O \
+	&& sudo rm -rf /usr/local/go \
+	&& sudo tar -C /usr/local -xzf go1.22.5.linux-amd64.tar.gz \
+	|| exit 1
 
-if [[ -f /home/vagrant/shared/go ]]; then
-  cp -r /home/vagrant/shared/go go
-else
-  git clone https://github.com/ricnava00/go
+if [[ ! -d go ]]
+then
+	if [[ -d /home/vagrant/shared/go ]]
+	then
+		cp -r /home/vagrant/shared/go go
+	else
+		git clone https://github.com/ricnava00/go
+	fi
 fi
+export PATH=/usr/local/go/bin:$PATH
 cd go/src
 ./make.bash
 echo 'export PATH=/home/vagrant/go/bin:$PATH' >> ~/.bashrc
