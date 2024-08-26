@@ -86,7 +86,7 @@ func handleResponse(w http.ResponseWriter, r *http.Request, params map[string]in
 		return
 	}
 	user := reqInfo["user"].(string)
-	messageType := reqInfo["messageType"].(*MessageType)
+	messageType := reqInfo["messageType"]
 	processResponse(response, user, messageType)
 	delete(requestInfo, int(params["connection_id"].(float64)))
 	rawResponse, err := httputil.DumpResponse(response, true)

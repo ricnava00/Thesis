@@ -28,7 +28,7 @@ func httpsClient(method string, url string, headers []string, data string) []byt
 
 	req, err := http.NewRequest(method, url, strings.NewReader(data))
 	if err != nil {
-		fmt.Printf("Error creating HTTP request: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error creating HTTP request: %v\n", err)
 		os.Exit(1)
 	}
 	for _, header := range headers {
@@ -36,7 +36,7 @@ func httpsClient(method string, url string, headers []string, data string) []byt
 		if len(parts) == 2 {
 			req.Header.Add(strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1]))
 		} else {
-			fmt.Println("Invalid header format:", header)
+			fmt.Fprintln(os.Stderr, "Invalid header format:", header)
 			os.Exit(1)
 		}
 	}
@@ -57,11 +57,11 @@ func main() {
 		decoder := gob.NewDecoder(file)
 		err = decoder.Decode(&waitingBodies)
 		if err != nil {
-			fmt.Printf("Error decoding file: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Error decoding file: %v\n", err)
 			os.Exit(1)
 		}
 	}
-	fmt.Println(os.Args)
+	fmt.Fprintln(os.Stderr, os.Args)
 	connectionID, _ := strconv.Atoi(os.Args[1])
 	//spliceID, _ := strconv.Atoi(os.Args[2])
 	isResponse, _ := strconv.ParseBool(os.Args[3])
@@ -73,7 +73,7 @@ func main() {
 	var headers map[string]string
 	var body string
 	var header string
-	fmt.Printf("\033[1;2m%s\033[0m\n", inputData)
+	fmt.Fprintf(os.Stderr, "\033[1;2m%s\033[0m\n", inputData)
 	if _, ok := waitingBodies[connectionID]; ok {
 		body = inputData
 		headers = waitingBodies[connectionID][0].(map[string]string)
@@ -90,13 +90,13 @@ func main() {
 		if !isResponse {
 			match := regexp.MustCompile(`(GET|POST|HEAD|PUT|DELETE) ([^ ]+) HTTP/(\d+(?:\.\d+)?)`).FindStringSubmatch(req)
 			if match == nil {
-				fmt.Println("Invalid request")
+				fmt.Fprintln(os.Stderr, "Invalid request")
 				os.Exit(1)
 			}
 		} else {
 			match := regexp.MustCompile(`HTTP/(\d+(?:\.\d+)?) (\d+)`).FindStringSubmatch(req)
 			if match == nil {
-				fmt.Println("Invalid response")
+				fmt.Fprintln(os.Stderr, "Invalid response")
 				os.Exit(1)
 			}
 		}
@@ -108,15 +108,15 @@ func main() {
 	}
 	cl, _ := strconv.Atoi(headers["Content-Length"])
 	if !isResponse && len(body) < cl {
-		fmt.Printf("Waiting for body for connection %d\n", connectionID)
+		fmt.Fprintf(os.Stderr, "Waiting for body for connection %d\n", connectionID)
 		waitingBodies[connectionID] = []interface{}{headers, body, header}
-		fmt.Println(waitingBodies)
+		fmt.Fprintln(os.Stderr, waitingBodies)
 		file, _ := os.Create("waiting.dat")
 		defer file.Close()
 		encoder := gob.NewEncoder(file)
 		err := encoder.Encode(waitingBodies)
 		if err != nil {
-			fmt.Printf("Error encoding file: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Error encoding file: %v\n", err)
 			os.Exit(1)
 		}
 		os.Exit(0)
@@ -127,7 +127,7 @@ func main() {
 		encoder := gob.NewEncoder(file)
 		err := encoder.Encode(waitingBodies)
 		if err != nil {
-			fmt.Printf("Error encoding file: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Error encoding file: %v\n", err)
 			os.Exit(1)
 		}
 	}
@@ -141,20 +141,20 @@ func main() {
 	}
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		fmt.Printf("Error marshalling JSON: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error marshalling JSON: %v\n", err)
 		os.Exit(1)
 	}
 	msg := httpsClient("POST", "http://localhost:8080", reqHeaders, string(jsonData))
-	fmt.Println(string(msg))
+	fmt.Fprintln(os.Stderr, string(msg))
 	var out map[string]interface{}
 	err = json.Unmarshal(msg, &out)
 	if err != nil {
-		fmt.Printf("Remote error")
+		fmt.Fprintf(os.Stderr, "Remote error")
 	} else if out["success"].(bool) {
 		fmt.Print(out["data"])
 		os.Exit(0)
 	} else {
-		fmt.Println("Invalid request/response")
+		fmt.Fprintln(os.Stderr, "Invalid request/response")
 	}
 	os.Exit(1)
 }

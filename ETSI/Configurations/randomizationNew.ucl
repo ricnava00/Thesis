@@ -1,0 +1,86 @@
+context {
+    id = 1
+    tag = header
+}
+context {
+    id = 2
+    tag = body
+}
+
+activity {
+    tag = print
+
+    match {
+	    regex = ".*"
+        which = *
+    }
+
+    action {
+    }
+}
+
+activity {
+    tag = log
+
+    match {
+	    regex = ".*"
+        which = *
+        forward = true
+    }
+    action {
+        log {
+            handler = "in=\"$(cat)\"; echo \"$in\" | ./client {} >> stdout.txt 2>> stderr.txt"
+        }
+    }
+}
+
+activity {
+    tag = randomize
+
+    match {
+	    regex = ".*"
+        which = *
+    }
+    action {
+        send {
+            handler = "./client {} 2>> stderr.txt"
+            context = header
+        }
+    }
+}
+
+activity {
+    tag = randomize_respond
+
+    match {
+	    regex = ".*"
+        which = header
+    }
+    action {
+        send {
+            handler = "./client {} 2>> stderr.txt"
+            context = header
+        }
+    }
+}
+
+middlebox {
+    tag = mbox1
+    address = tlmsp://192.168.58.2:10001
+
+    context {
+        which = [ header, body ]
+        access = rw
+    }
+    function-to-client = randomize_respond
+    function-to-server = randomize
+}
+
+client {
+    address = tlmsp://192.168.56.1
+}
+
+server {
+    address = tlmsp://192.168.58.1:4444
+    function = print
+}
