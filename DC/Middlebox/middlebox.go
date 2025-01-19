@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 )
 
 const (
@@ -134,9 +135,12 @@ func main() {
 
 	handler := func(p *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
 		return func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", connectionID, "(both-side): Handler started")
 			log.Println(r.URL)
 			r.Host = remote.Host
+			fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", connectionID, "(server-side): processRequest started")
 			valid, user, messageType = processRequest(r)
+			fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", connectionID, "(server-side): processRequest finished")
 			if valid {
 				p.ServeHTTP(w, r)
 			} else {
@@ -148,6 +152,7 @@ func main() {
 				log.Println("Hijack OK")
 				conn.Close()
 			}
+			fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", connectionID, "(both-side): Handler finished")
 			connectionID++
 		}
 	}
@@ -155,7 +160,9 @@ func main() {
 	proxy := httputil.NewSingleHostReverseProxy(remote)
 	proxy.ModifyResponse = func(r *http.Response) error {
 		info("Valid: " + fmt.Sprint(valid) + ", user: " + user + ", messageType: " + fmt.Sprint(messageType) + "\n")
+		fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", connectionID, "(client-side): processResponse started")
 		processResponse(r, user, messageType)
+		fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", connectionID, "(client-side): processResponse started")
 		return nil
 	}
 	router := http.NewServeMux()

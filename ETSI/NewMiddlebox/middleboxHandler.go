@@ -64,7 +64,7 @@ type Session struct {
 	State    int
 	Codes    map[*MessageType]Code
 }
-
+/* 
 var states = []State{
 	{[]Transition{{1, &initMessageType}}},
 	{[]Transition{{2, &buildProductMessageType}}},
@@ -75,6 +75,19 @@ var states = []State{
 	{[]Transition{{7, &photographerRegisterMessageType}}},
 	{[]Transition{{8, &photoRequestMessageType}}},
 	{[]Transition{{0, &photoAssignmentMessageType}}},
+}
+*/
+
+var states = []State{
+	{[]Transition{{1, &initMessageType}}},
+	{[]Transition{{2, &initMessageType}}},
+	{[]Transition{{3, &initMessageType}}},
+	{[]Transition{{4, &initMessageType}}},
+	{[]Transition{{5, &initMessageType}}},
+	{[]Transition{{6, &initMessageType}}},
+	{[]Transition{{7, &initMessageType}}},
+	{[]Transition{{8, &initMessageType}}},
+	{[]Transition{{0, &initMessageType}}},
 }
 
 var session = make(map[string]Session)

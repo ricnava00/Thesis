@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func isFlagPassed(name string) bool {
@@ -65,6 +66,11 @@ func main() {
 	connectionID, _ := strconv.Atoi(os.Args[1])
 	//spliceID, _ := strconv.Atoi(os.Args[2])
 	isResponse, _ := strconv.ParseBool(os.Args[3])
+	if isResponse {
+		fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", connectionID, "(client-side): Client started")
+	} else {
+		fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", connectionID, "(server-side): Client started")
+	}
 	inputDataBytes, _ := io.ReadAll(os.Stdin)
 	if inputDataBytes == nil {
 		return
@@ -148,6 +154,11 @@ func main() {
 	fmt.Fprintln(os.Stderr, string(msg))
 	var out map[string]interface{}
 	err = json.Unmarshal(msg, &out)
+	if isResponse {
+		fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", connectionID, "(client-side): Client finished")
+	} else {
+		fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", connectionID, "(server-side): Client finished")
+	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Remote error")
 	} else if out["success"].(bool) {

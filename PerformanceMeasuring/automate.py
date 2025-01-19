@@ -7,11 +7,13 @@ import time
 import paramiko
 from traceback import format_exception
 
-VAGRANT = False
+VAGRANT = True
 SRV_IP = "192.168.58.1"
 MB_IP = "192.168.56.2"
-TEST_TIME = 120
+TEST_TIME = 0 # 0 for requests
+TEST_REQUESTS = 1000 # 0 for time
 SLEEP_TIME = 120
+JWT=""
 
 if VAGRANT:
     srv_user = mb_user = srv_password = mb_password = "vagrant"
@@ -32,7 +34,7 @@ else:
 client_tlmsp_conf_path = client_tlmsp_base_path + "/Configurations"
 mb_tlmsp_conf_path = mb_tlmsp_base_path + "/Configurations"
 srv_tlmsp_conf_path = srv_tlmsp_base_path + "/Configurations"
-mb_tlmsp_middlebox_path = mb_tlmsp_base_path + "/Middlebox"
+mb_tlmsp_middlebox_path = mb_tlmsp_base_path + "/NewMiddlebox"
 client_dc_middlebox_path = client_dc_base_path + "/Middlebox"
 mb_dc_middlebox_path = mb_dc_base_path + "/Middlebox"
 
@@ -43,6 +45,7 @@ def background(host, command):
     pid = int(stdout.readline())
     time.sleep(1)
     if stdout.channel.exit_status_ready():
+        print("Exited with status code", stdout.channel.recv_exit_status())
         print(stdout.read().decode('iso-8859-1'))
         print(stderr.read().decode('iso-8859-1'))
         for host, pid in running:
@@ -57,10 +60,16 @@ def run_tlmsp(conf_file, output_file):
     assert stdout.channel.recv_exit_status() == 0
     if not background(srv, f"echo $$; . {srv_tlmsp_install_path}/share/tlmsp-tools/tlmsp-env.sh; exec httpd -X"):
         return
-    if not background(mb, f"echo $$; . {mb_tlmsp_install_path}/share/tlmsp-tools/tlmsp-env.sh; cd {mb_tlmsp_middlebox_path}; rm session.dat; tlmsp-mb -c {mb_tlmsp_conf_path}/{conf_file} -a"):
+    if not background(mb, f"echo $$; . {mb_tlmsp_install_path}/share/tlmsp-tools/tlmsp-env.sh; cd {mb_tlmsp_middlebox_path}; rm session.dat stderr.txt; tlmsp-mb -c {mb_tlmsp_conf_path}/{conf_file} -a -vvvvv 2>&1 >mb.log"):
         return
-    passthru(f". {client_tlmsp_install_path}/share/tlmsp-tools/tlmsp-env.sh; python measure.py -s https://{SRV_IP}:4444 -a {JWT} --tlmsp {client_tlmsp_conf_path}/{conf_file} -o {output_file} -t {TEST_TIME}")
+    if not background(mb, f"echo $$; cd {mb_tlmsp_middlebox_path}; exec ./listener 2>listener.log"):
+        return
+    passthru(f". {client_tlmsp_install_path}/share/tlmsp-tools/tlmsp-env.sh; python measure.py -s https://{SRV_IP}:4444 -a {JWT} --tlmsp {client_tlmsp_conf_path}/{conf_file} -o {output_file} -t {TEST_TIME} -r {TEST_REQUESTS}")
     kill_background()
+    with mb.open_sftp() as sftp:
+        sftp.get(mb_tlmsp_middlebox_path + "/mb.log", output_file + ".mb.log")
+        sftp.get(mb_tlmsp_middlebox_path + "/stderr.txt", output_file + ".client_listener.log")
+        sftp.get(mb_tlmsp_middlebox_path + "/listener.log", output_file + ".mb_listener.log")
 
 
 def kill_background():
@@ -71,22 +80,24 @@ def kill_background():
 
 
 def run_curl(output_file):
-    passthru(f"python measure.py -s http://{SRV_IP}:8080 -a {JWT} -o {output_file} -t {TEST_TIME}")
+    passthru(f"python measure.py -s http://{SRV_IP}:8080 -a {JWT} -o {output_file} -t {TEST_TIME} -r {TEST_REQUESTS}")
 
 
 def run_curl_tlmsp(output_file):
-    passthru(f". {client_tlmsp_install_path}/share/tlmsp-tools/tlmsp-env.sh; python measure.py -s http://{SRV_IP}:8080 -a {JWT} -o {output_file} -t {TEST_TIME}")
+    passthru(f". {client_tlmsp_install_path}/share/tlmsp-tools/tlmsp-env.sh; python measure.py -s http://{SRV_IP}:8080 -a {JWT} -o {output_file} -t {TEST_TIME} -r {TEST_REQUESTS}")
 
 
 def run_goclient(output_file):
-    passthru(f"python measure.py -s http://{SRV_IP}:8080 -a {JWT} --go {client_dc_middlebox_path}/client -o {output_file} -t {TEST_TIME}")
+    passthru(f"python measure.py -s http://{SRV_IP}:8080 -a {JWT} --go {client_dc_middlebox_path}/client -o {output_file} -t {TEST_TIME} -r {TEST_REQUESTS}")
 
 
 def run_dc(empty, output_file):
-    if not background(mb, f"echo $$; cd {mb_dc_middlebox_path}; exec ./middlebox{'_empty' if empty else ''} 2>/dev/null >/dev/null"): # problems with buffering, fix if needed
+    if not background(mb, f"echo $$; cd {mb_dc_middlebox_path}; exec ./middlebox{'_empty' if empty else ''} 2>mb.log >/dev/null"): # problems with buffering, fix if needed
         return
-    passthru(f"python measure.py -s https://{MB_IP}:8443 -a {JWT} --go {client_dc_middlebox_path}/client -o {output_file} -t {TEST_TIME}")
+    passthru(f"python measure.py -s https://{MB_IP}:8443 -a {JWT} --go {client_dc_middlebox_path}/client -o {output_file} -t {TEST_TIME} -r {TEST_REQUESTS}")
     kill_background()
+    with mb.open_sftp() as sftp:
+        sftp.get(mb_dc_middlebox_path + "/mb.log", output_file + ".mb.log")
 
 
 def passthru(command):
@@ -130,10 +141,11 @@ sys.excepthook = excepthook
 
 os.environ["PYTHONUNBUFFERED"] = "1"
 running = []
-os.chdir("../OAuthTokenGetter")
-out = subprocess.run(["./refresh_token.sh"], stdout=subprocess.PIPE).stdout.decode('utf-8')
-JWT = json.loads(out)["id_token"]
-os.chdir("../PerformanceMeasuring")
+if not JWT:
+    os.chdir("../OAuthTokenGetter")
+    out = subprocess.run(["./refresh_token.sh"], stdout=subprocess.PIPE).stdout.decode('utf-8')
+    JWT = json.loads(out)["id_token"]
+    os.chdir("../PerformanceMeasuring")
 srv = paramiko.SSHClient()
 srv.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 srv.connect(SRV_IP, username=srv_user, password=srv_password)
@@ -150,32 +162,40 @@ _, stdout, _ = mb.exec_command("killall -s 9 middlebox_empty")
 stdout.channel.recv_exit_status()
 if not os.path.exists("auto"):
     os.mkdir("auto")
-while True:
-    print("\033[1;36mDirect curl-tlmsp\033[0m")
-    cleardb()
-    run_curl_tlmsp("auto/" + t() + "_direct_curl_tlmsp.res")
-    time.sleep(SLEEP_TIME)
-    print("\033[1;36mDirect curl\033[0m")
-    cleardb()
-    run_curl("auto/" + t() + "_direct_curl.res")
-    time.sleep(SLEEP_TIME)
-    print("\033[1;36mDirect go\033[0m")
-    cleardb()
-    run_goclient("auto/" + t() + "_direct_goclient.res")
-    time.sleep(SLEEP_TIME)
-    print("\033[1;36mTLMSP forward\033[0m")
-    cleardb()
-    run_tlmsp("read_write.ucl", "auto/" + t() + "_tlmsp_empty.res")
-    time.sleep(SLEEP_TIME)
-    print("\033[1;36mTLMSP full\033[0m")
-    cleardb()
-    run_tlmsp("randomization.ucl", "auto/" + t() + "_tlmsp.res")
-    time.sleep(SLEEP_TIME)
-    print("\033[1;36mDC forward\033[0m")
-    cleardb()
-    run_dc(True, "auto/" + t() + "_go_empty.res")
-    time.sleep(SLEEP_TIME)
-    print("\033[1;36mDC full\033[0m")
-    cleardb()
-    run_dc(False, "auto/" + t() + "_go.res")
-    time.sleep(SLEEP_TIME)
+
+# Old
+# while True:
+#     print("\033[1;36mDirect curl-tlmsp\033[0m")
+#     cleardb()
+#     run_curl_tlmsp("auto/" + t() + "_direct_curl_tlmsp.res")
+#     time.sleep(SLEEP_TIME)
+#     print("\033[1;36mDirect curl\033[0m")
+#     cleardb()
+#     run_curl("auto/" + t() + "_direct_curl.res")
+#     time.sleep(SLEEP_TIME)
+#     print("\033[1;36mDirect go\033[0m")
+#     cleardb()
+#     run_goclient("auto/" + t() + "_direct_goclient.res")
+#     time.sleep(SLEEP_TIME)
+#     print("\033[1;36mTLMSP forward\033[0m")
+#     cleardb()
+#     run_tlmsp("read_write.ucl", "auto/" + t() + "_tlmsp_empty.res")
+#     time.sleep(SLEEP_TIME)
+#     print("\033[1;36mTLMSP full\033[0m")
+#     cleardb()
+#     run_tlmsp("randomization.ucl", "auto/" + t() + "_tlmsp.res")
+#     time.sleep(SLEEP_TIME)
+#     print("\033[1;36mDC forward\033[0m")
+#     cleardb()
+#     run_dc(True, "auto/" + t() + "_go_empty.res")
+#     time.sleep(SLEEP_TIME)
+#     print("\033[1;36mDC full\033[0m")
+#     cleardb()
+#     run_dc(False, "auto/" + t() + "_go.res")
+#     time.sleep(SLEEP_TIME)
+
+# New
+print("\033[1;36mTLMSP full\033[0m")
+run_tlmsp("randomizationNew.ucl", "auto/" + t() + "_tlmsp.res")
+# run_dc(True, "auto/" + t() + "_go_empty.res")
+# print("\033[1;36mDC full\033[0m")

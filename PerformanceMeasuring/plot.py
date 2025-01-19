@@ -74,6 +74,7 @@ table = "\\begin{tabular}{|l|c|c|c|c|}\n" + \
 for n, results in enumerate(all_results):
     premultiplied_color = np.array(mcolors.to_rgba(colors[(n + args.color_offset) % len(colors)])) * alpha + (1 - alpha)
     filename = args.input_file[n].name
+    results = [res for res in results if res["total_latency"] > 0]
     total = len(results)
     failed = len([res for res in results if res["fail"]])
     print(f"{filename}: \ttotal requests: {total}, failed: {failed}")

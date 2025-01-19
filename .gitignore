@@ -1,5 +1,4 @@
-/ETSI/vm/.vagrant/
-/DC/vm/.vagrant/
+/**/vm/.vagrant/
 /ETSI/Middlebox/graph.png
 /ETSI/Middlebox/session.dat
 /ETSI/Middlebox/stderr.txt
@@ -14,5 +13,7 @@
 /PerformanceMeasuring/*/
 /PerformanceMeasuring/*.png
 /DC/Middlebox/*.dat
+/DC/certs/dc.cred
+/DC/certs/dckey.pem
 /ETSI/NewMiddlebox/*.dat
 go.sum

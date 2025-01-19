@@ -9,6 +9,7 @@ import (
 	"net/http/httputil"
 	"os"
 	"strings"
+	"time"
 )
 
 const (
@@ -28,9 +29,13 @@ func handlePost(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("Received JSON: " + fmt.Sprint(params))
 	if params["is_response"] == true {
+		fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", params["connection_id"], "(client-side): Listener started")
 		handleResponse(w, r, params)
+		fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", params["connection_id"], "(client-side): Listener finished")
 	} else {
+		fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", params["connection_id"], "(server-side): Listener started")
 		handleRequest(w, r, params)
+		fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", params["connection_id"], "(server-side): Listener finished")
 	}
 }
 
@@ -42,7 +47,9 @@ func handleRequest(w http.ResponseWriter, r *http.Request, params map[string]int
 		return
 	}
 	log.Println("Parsed request: " + fmt.Sprint(request))
+	fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", params["connection_id"], "(server-side): processRequest started")
 	valid, user, messageType := processRequest(request)
+	fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", params["connection_id"], "(server-side): processRequest finished")
 	var output map[string]interface{}
 	if valid {
 		requestInfo[int(params["connection_id"].(float64))] = map[string]interface{}{
@@ -87,7 +94,9 @@ func handleResponse(w http.ResponseWriter, r *http.Request, params map[string]in
 	}
 	user := reqInfo["user"].(string)
 	messageType := reqInfo["messageType"]
+	fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", params["connection_id"], "(client-side): processResponse started")
 	processResponse(response, user, messageType)
+	fmt.Fprintln(os.Stderr, time.Now().UnixNano(), "splice", params["connection_id"], "(client-side): processResponse finished")
 	delete(requestInfo, int(params["connection_id"].(float64)))
 	rawResponse, err := httputil.DumpResponse(response, true)
 	if err != nil {

@@ -48,14 +48,15 @@ parser.add_argument('-s', '--server-address', help='Enable TLMSP, and use the sp
 parser.add_argument('-a', '--auth-token', help='Google OAuth2 token', required=True)
 parser.add_argument('--tlmsp', metavar="UCL_PATH", help='Enable TLMSP, and use the specified ucl file', type=argparse.FileType('r'))
 parser.add_argument('--go', metavar="CLIENT_PATH", help='Use the specified go client instead of curl', type=argparse.FileType('r'))
-parser.add_argument('-t', '--time', default=60, help='Duration of the test in seconds')
+parser.add_argument('-t', '--time', help='Duration of the test in seconds', type=int)
+parser.add_argument('-r', '--requests', help='Number of requests to send', type=int)
 parser.add_argument('-e', '--continue-on-error', help='Continue on error', action='store_true')
 
 try:
-    with open("requests.json") as f:
+    with open("requestsNew.json") as f:
         requests = json.load(f)
 except FileNotFoundError:
-    log.error("requests.json not found")
+    log.error("requestsNew.json not found")
     exit(1)
 except json.decoder.JSONDecodeError as e:
     log.error("JSONDecodeError: " + str(e))
@@ -65,6 +66,13 @@ args = parser.parse_args()
 if args.go and args.tlmsp:
     log.error("Cannot use go client with TLMSP")
     exit(1)
+
+if args.time and args.requests:
+    log.error("Cannot specify both time and requests")
+    exit(1)
+
+if not args.time and not args.requests:
+    args.time = 60
 
 try:
     with open(args.output, 'a'):
@@ -157,7 +165,7 @@ while True:
         log.error("More than 5 seconds passed from last successful request, aborting")
         stop_process()
         exit(1)
-    if time.time() - start >= int(args.time):
+    if (args.time and time.time() - start >= args.time) or (args.requests and total >= args.requests):
         stop_process()
         break
     if time.time() - last_print_time > 1:
