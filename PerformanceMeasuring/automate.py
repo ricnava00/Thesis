@@ -197,5 +197,5 @@ if not os.path.exists("auto"):
 # New
 print("\033[1;36mTLMSP full\033[0m")
 run_tlmsp("randomizationNew.ucl", "auto/" + t() + "_tlmsp.res")
-# run_dc(True, "auto/" + t() + "_go_empty.res")
-# print("\033[1;36mDC full\033[0m")
+print("\033[1;36mDC full\033[0m")
+run_dc(False, "auto/" + t() + "_go.res")

@@ -4,6 +4,7 @@ if [ ! -f $go ]; then
     go="$HOME/go/bin/go"
 fi
 if [ ! -f $go ]; then
+    echo -e "\e[1;33mWarning: using system go, results might not be comparable\e[0m"
     go="go"
 fi
 "$go" build -o client client.go

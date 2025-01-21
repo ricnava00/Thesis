@@ -127,6 +127,7 @@ func processRequest(inputData *http.Request) (bool, string, *MessageType) {
 		}
 		if userObj, err := parseJWT(id_token); err != nil {
 			info("\033[1;33mCouldn't get email from token: " + err.Error() + "\033[0m")
+			return false, user, nil
 		} else {
 			user = userObj["email"].(string)
 		}
