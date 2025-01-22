@@ -83,12 +83,24 @@ def run_curl(output_file):
     passthru(f"python measure.py -s http://{SRV_IP}:8080 -a {JWT} -o {output_file} -t {TEST_TIME} -r {TEST_REQUESTS}")
 
 
+def run_curl_tls(output_file):
+    passthru(f"python measure.py -s https://{SRV_IP}:8080 -a {JWT} -o {output_file} -t {TEST_TIME} -r {TEST_REQUESTS}")
+
+
 def run_curl_tlmsp(output_file):
     passthru(f". {client_tlmsp_install_path}/share/tlmsp-tools/tlmsp-env.sh; python measure.py -s http://{SRV_IP}:8080 -a {JWT} -o {output_file} -t {TEST_TIME} -r {TEST_REQUESTS}")
 
 
+def run_curl_tlmsp_tls(output_file):
+    passthru(f". {client_tlmsp_install_path}/share/tlmsp-tools/tlmsp-env.sh; python measure.py -s https://{SRV_IP}:8080 -a {JWT} -o {output_file} -t {TEST_TIME} -r {TEST_REQUESTS}")
+
+
 def run_goclient(output_file):
     passthru(f"python measure.py -s http://{SRV_IP}:8080 -a {JWT} --go {client_dc_middlebox_path}/client -o {output_file} -t {TEST_TIME} -r {TEST_REQUESTS}")
+
+
+def run_goclient_tls(output_file):
+    passthru(f"python measure.py -s https://{SRV_IP}:8080 -a {JWT} --go {client_dc_middlebox_path}/client -o {output_file} -t {TEST_TIME} -r {TEST_REQUESTS}")
 
 
 def run_dc(empty, output_file):
@@ -163,7 +175,8 @@ stdout.channel.recv_exit_status()
 if not os.path.exists("auto"):
     os.mkdir("auto")
 
-# Old
+## Old
+
 # while True:
 #     print("\033[1;36mDirect curl-tlmsp\033[0m")
 #     cleardb()
@@ -194,8 +207,27 @@ if not os.path.exists("auto"):
 #     run_dc(False, "auto/" + t() + "_go.res")
 #     time.sleep(SLEEP_TIME)
 
-# New
+
+## New
+
+# Main
 print("\033[1;36mTLMSP full\033[0m")
 run_tlmsp("randomizationNew.ucl", "auto/" + t() + "_tlmsp.res")
 print("\033[1;36mDC full\033[0m")
 run_dc(False, "auto/" + t() + "_go.res")
+
+# Direct TLS
+# print("\033[2mSkipping curl-tlmsp tls (not working)\033[0m")
+# # run_curl_tlmsp_tls("auto/" + t() + "_direct_curl_tlmsp_tls.res") #segfaults
+# print("\033[1;36mDirect curl tls\033[0m")
+# run_curl_tls("auto/" + t() + "_direct_curl_tls.res")
+# print("\033[1;36mDirect go tls\033[0m")
+# run_goclient_tls("auto/" + t() + "_direct_goclient_tls.res")
+
+# Direct TCP
+print("\033[1;36mDirect curl-tlmsp\033[0m")
+run_curl_tlmsp("auto/" + t() + "_direct_curl_tlmsp.res")
+print("\033[1;36mDirect curl\033[0m")
+run_curl("auto/" + t() + "_direct_curl.res")
+print("\033[1;36mDirect go\033[0m")
+run_goclient("auto/" + t() + "_direct_goclient.res")
